@@ -1,7 +1,7 @@
 SAMPLE_QUESTIONS = [
-    "What products are available?",
-    "Which fragrance products are available?",
-    "What factors affect product lead times and availability?",
-    "Which products are suitable for a sustainable product line?",
-    "What information is needed to place an order?"
+    "Quels produits sont disponibles ?",
+    "Quels produits de parfumerie sont disponibles ?",
+    "Quels facteurs influencent les délais de livraison et la disponibilité ?",
+    "Quels produits conviennent à une gamme de produits durables ?",
+    "Quelles informations sont nécessaires pour passer une commande ?"
 ]
