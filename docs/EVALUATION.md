@@ -12,10 +12,11 @@ Le « modèle » est le système RAG complet : dataset + découpage + modèle d'
   filtre de domaine, suivi des commandes. Évaluée sur les 30 cas de référence ci-dessous.
 
 Pour choisir le modèle d'embeddings de la V2, on compare deux configurations sur le
-**même jeu de 30 cas** :
+**même jeu de 30 cas**, ainsi qu'une baseline sans IA servant de plancher :
 
 | Configuration V2 | Embeddings | LLM |
 |---|---|---|
+| `baseline_tfidf` (plancher, `baseline_tfidf.py`) | TF-IDF lexical, sans IA | aucun (recherche seule) |
 | `v2_nomic` (référence légère) | `nomic-embed-text` | `qwen2.5:1.5b` |
 | `v2_qwen3` (candidate retenue par l'étude) | `qwen3-embedding:4b` | `qwen2.5:1.5b` |
 
@@ -68,7 +69,8 @@ bien les informations attendues.
 | Refus corrects | Part des questions pièges où le modèle refuse au lieu d'inventer | 100 % |
 | Latence moyenne | Temps moyen d'un appel `/ask` (recherche + génération) | ≤ 10 s |
 
-Une configuration est **validée** si tous les seuils sont atteints. La V2 publiée utilise
+Une configuration d'embeddings n'est retenue que si elle fait mieux que la baseline TF-IDF
+sur Hit@4 et MRR. Une configuration est **validée** si tous les seuils sont atteints. La V2 publiée utilise
 `qwen3-embedding:4b` si cette configuration est validée et fait au moins aussi bien que
 `nomic-embed-text` sur Hit@4 et l'exactitude ; sinon on publie `nomic-embed-text`.
 
@@ -76,6 +78,9 @@ Une configuration est **validée** si tous les seuils sont atteints. La V2 publi
 
 ```bash
 python generate_dataset.py
+
+# Baseline sans IA (aucun modèle requis)
+python baseline_tfidf.py
 
 # Configuration nomic-embed-text
 export EMBED_MODEL=nomic-embed-text

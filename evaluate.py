@@ -134,6 +134,11 @@ def summarize(results: list[dict], retrieval_only: bool) -> dict:
     return summary
 
 
+def fmt_seconds(value: float) -> str:
+    """0.0012 -> '1.2 ms' ; 2.345 -> '2.35 s'."""
+    return f"{value * 1000:.1f} ms" if value < 1 else f"{value:.2f} s"
+
+
 def write_markdown(path: Path, label: str, meta: dict, summary: dict, results: list[dict]) -> None:
     def pct(x: float) -> str:
         return f"{x * 100:.1f} %"
@@ -152,14 +157,16 @@ def write_markdown(path: Path, label: str, meta: dict, summary: dict, results: l
         if metric not in summary:
             continue
         value = summary[metric]
-        shown = f"{value:.2f} s" if metric.startswith("latency") else (
+        shown = fmt_seconds(value) if metric.startswith("latency") else (
             f"{value:.3f}" if metric == "mrr" else pct(value))
         limit = f"≤ {threshold:.0f} s" if metric.startswith("latency") else (
             f"≥ {threshold:.2f}" if metric == "mrr" else f"≥ {pct(threshold)}")
         lines.append(f"| {metric} | {shown} | {limit} | {'✅' if summary['validation'][metric] else '❌'} |")
     lines += [
         "",
-        f"**Résultat global : {'VALIDÉ' if summary['validated'] else 'NON VALIDÉ'}**",
+        f"**Résultat global : {'VALIDÉ' if summary['validated'] else 'NON VALIDÉ'}**"
+        + (" (recherche seule : exactitude des réponses et refus non mesurés)"
+           if meta["retrieval_only"] else ""),
         "",
         "## Détail par cas",
         "",
@@ -173,7 +180,7 @@ def write_markdown(path: Path, label: str, meta: dict, summary: dict, results: l
         else:
             ok = "—" if r["refusal_ok"] is None else ("✅ refus" if r["refusal_ok"] else "❌ pas de refus")
             rank = "n/a"
-        lines.append(f"| {r['id']} | {r['category']} | {rank} | {ok} | {r['latency_s']:.2f} s |")
+        lines.append(f"| {r['id']} | {r['category']} | {rank} | {ok} | {fmt_seconds(r['latency_s'])} |")
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
