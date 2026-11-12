@@ -1,5 +1,7 @@
 # Plateforme B2B intelligente d'arômes et de fragrances — RAG (équipe 10)
 
+[![Tests](https://github.com/Hetic-Hackathon-Givaudan-2026-CHARK/equipe10/actions/workflows/tests.yml/badge.svg)](https://github.com/Hetic-Hackathon-Givaudan-2026-CHARK/equipe10/actions/workflows/tests.yml)
+
 Prototype de RAG pour une plateforme où les entreprises conçoivent, personnalisent, testent
 et commandent des arômes alimentaires et des fragrances, en suivant leurs projets jusqu'à la
 livraison. L'assistant IA répond uniquement à partir de données **100 % fictives**.
@@ -52,7 +54,7 @@ Les lignes V2 se remplissent en lançant le notebook (Ollama nécessaire), qui p
 `results.zip` à déposer dans [`results/`](results). Le tableau complet de toutes les
 configurations est généré automatiquement dans [`results/SYNTHESE.md`](results/SYNTHESE.md) (`python report.py`).
 
-**Tests automatiques :** `python -m pytest` — 73 tests (données, cas d'évaluation, ingestion,
+**Tests automatiques :** `python -m pytest` — 73 tests, relancés par GitHub Actions à chaque modification (badge en haut de page) (données, cas d'évaluation, ingestion,
 reclassement, API complète, contrat OpenAPI, synthèse) qui tournent sans Ollama en quelques secondes.
 
 ## Historique des versions
