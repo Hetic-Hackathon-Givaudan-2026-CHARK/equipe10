@@ -1,6 +1,6 @@
 # Plateforme B2B intelligente d'arômes et de fragrances — RAG (équipe 10)
 
-[![Tests](https://github.com/Hetic-Hackathon-Givaudan-2026-CHARK/equipe10/actions/workflows/tests.yml/badge.svg)](https://github.com/Hetic-Hackathon-Givaudan-2026-CHARK/equipe10/actions/workflows/tests.yml)
+
 
 Prototype de RAG pour une plateforme où les entreprises conçoivent, personnalisent, testent
 et commandent des arômes alimentaires et des fragrances, en suivant leurs projets jusqu'à la
