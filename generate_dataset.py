@@ -695,7 +695,8 @@ def build_documents() -> list[dict]:
             f"Niveau de compte : {c['account_level']}. "
             f"Projets de création : {', '.join(client_projects) or 'aucun'}. "
             f"Commandes : {', '.join(client_orders) or 'aucune'}.",
-            {"type": "client", "client_id": c["client_id"]})
+            {"type": "client", "client_id": c["client_id"], "client_name": c["company_name"],
+             "country": c["country"], "industry": c["industry"], "segment": c["segment"]})
 
     for p in products:
         kind = "Arôme alimentaire" if p["domain"] == "Arôme" else "Fragrance"
@@ -709,7 +710,11 @@ def build_documents() -> list[dict]:
             f"Quantité minimale de commande : {p['moq_kg']} kg. "
             f"Délai de fabrication : {p['lead_time_days']} jours ouvrés. "
             f"Marchés : {p['markets']}. Statut : {p['status']}.",
-            {"type": "product", "product_id": p["product_id"]})
+            {"type": "product", "product_id": p["product_id"], "reference": p["reference"],
+             "name": p["name"], "family": p["family"], "intensity": p["intensity"],
+             "naturalness": p["naturalness"], "price_eur_kg": p["price_eur_kg"],
+             "moq_kg": p["moq_kg"], "lead_time_days": p["lead_time_days"],
+             "status": p["status"].split(" (")[0]})
 
     for rm in raw_materials:
         used = ", ".join(
@@ -721,7 +726,8 @@ def build_documents() -> list[dict]:
             f"Type : {rm['type']}. Origine : {rm['origin']}. Profil : {rm['profile']}. "
             f"Allergènes : {rm['allergen']}. Note réglementaire : {rm['regulatory_note']}. "
             f"Utilisée dans : {used}. Statut : {rm['status']}.",
-            {"type": "raw_material", "raw_material_id": rm["raw_material_id"]})
+            {"type": "raw_material", "raw_material_id": rm["raw_material_id"],
+             "reference": rm["reference"], "name": rm["name"], "origin": rm["origin"]})
 
     for pj in projects:
         client = client_by_id[pj["client_id"]]
@@ -744,7 +750,11 @@ def build_documents() -> list[dict]:
             f"Prochaine étape : {pj['next_step']} (date prévue : {pj['next_step_date']}). "
             f"Commandes liées : {', '.join(project_orders) or 'aucune'}. "
             f"Chef de projet : {pj['project_manager']}.",
-            {"type": "project", "project_id": pj["project_id"], "client_id": pj["client_id"]})
+            {"type": "project", "project_id": pj["project_id"], "client_id": pj["client_id"],
+             "client_name": client["company_name"], "project_title": pj["title"],
+             "product_type": pj["product_type"], "reference": product["reference"],
+             "stage": pj["stage"], "progress_pct": PROJECT_STAGES[pj["stage"]],
+             "current_version": pj["current_version"], "next_step_date": pj["next_step_date"]})
 
     for s in samples:
         pj = project_by_id[s["project_id"]]
@@ -757,7 +767,9 @@ def build_documents() -> list[dict]:
             f"Modifications apportées : {s['changes']} Retour du client : {s['client_feedback']} "
             f"Note : {score}. Décision : {s['decision']}.",
             {"type": "sample", "sample_id": s["sample_id"], "project_id": pj["project_id"],
-             "client_id": pj["client_id"]})
+             "client_id": pj["client_id"], "client_name": client["company_name"],
+             "version": s["version"], "sent_date": s["sent_date"], "decision": s["decision"],
+             "score_10": s["score_10"] if s["score_10"] is not None else ""})
 
     for o in orders:
         client = client_by_id[o["client_id"]]
@@ -776,10 +788,14 @@ def build_documents() -> list[dict]:
             f"Montant total : {fmt_number(net)} € HT (brut {fmt_number(gross)} €). "
             f"Commentaire : {o['comment']}",
             {"type": "order", "order_id": o["order_id"], "client_id": o["client_id"],
-             "product_id": o["product_id"]})
+             "client_name": client["company_name"], "product_id": o["product_id"],
+             "reference": product["reference"], "project_id": o["project_id"],
+             "status": o["status"], "order_date": o["order_date"],
+             "delivery_date": o["delivery_date"], "quantity_kg": o["quantity_kg"],
+             "amount_eur": net})
 
     for faq_id, title, text in faqs:
-        add(faq_id, f"FAQ PLATEFORME | {title}. {text}", {"type": "faq"})
+        add(faq_id, f"FAQ PLATEFORME | {title}. {text}", {"type": "faq", "faq_title": title})
 
     # Domaine applicatif utilisé par le filtre de l'API (POST /ask, champ "domain") :
     # "fragrance", "dairy_aroma" (arômes alimentaires) ou "shared" (commun aux deux).

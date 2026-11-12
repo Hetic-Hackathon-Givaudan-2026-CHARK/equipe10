@@ -94,6 +94,10 @@ class AskRequest(BaseModel):
     )
 
 
+# Métadonnées internes à l'indexation, non renvoyées dans Source.metadata.
+TECHNICAL_METADATA = {"section_index", "chunk_index", "dataset_title"}
+
+
 class Source(BaseModel):
     section: str
     doc_id: str = Field(
@@ -108,6 +112,13 @@ class Source(BaseModel):
             "Score de similarité : plus il est proche de 1, "
             "plus la source est pertinente."
         )
+    )
+    metadata: dict[str, str | int | float | bool] = Field(
+        default_factory=dict,
+        description=(
+            "Métadonnées du document : identifiants (product_id, client_id, project_id, "
+            "sample_id, order_id), référence, nom, statut, dates, montants… selon son type."
+        ),
     )
     rank_score: float | None = Field(
         default=None,
@@ -179,6 +190,7 @@ def retrieve(question: str, top_k: int, domain: str = "all") -> list[Source]:
             ),
             domain=metadata.get("domain", "unknown"),
             text=document,
+            metadata={k: v for k, v in metadata.items() if k not in TECHNICAL_METADATA},
             score=round(1 - distance, 4),
         )
         for document, metadata, distance in zip(
