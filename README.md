@@ -4,6 +4,18 @@ Prototype de RAG pour une plateforme où les entreprises conçoivent, personnali
 et commandent des arômes alimentaires et des fragrances, en suivant leurs projets jusqu'à la
 livraison. L'assistant IA répond uniquement à partir de données **100 % fictives**.
 
+## Où trouver les livrables
+
+| Livrable | Où le trouver |
+|---|---|
+| 1. Données nettoyées et préparées | [`data/raw/`](data/raw) (tables CSV) et [`generate_dataset.py`](generate_dataset.py) (génération + contrôles de cohérence) |
+| 2. Pipeline de traitement fonctionnel | [`ingest.py`](ingest.py) → ChromaDB → [`api.py`](api.py) ; démo complète dans [`notebooks/`](notebooks) |
+| 3. Modèle V2 publié | V2 = embeddings `qwen3-embedding:4b` + LLM `qwen2.5:1.5b` ; choix justifié par [`results/`](results) et [`docs/etude_benchmark_embeddings.pdf`](docs/etude_benchmark_embeddings.pdf) |
+| 4. Métriques et protocole sur 30 cas | [`docs/EVALUATION.md`](docs/EVALUATION.md), [`data/eval/reference_cases.json`](data/eval/reference_cases.json), rapports V1/V2 dans [`results/`](results) |
+| 5. API renvoyant les résultats réels | [`api.py`](api.py), documentée par Swagger (`/docs`) et exposée via ngrok depuis le notebook |
+
+**Tester en 1 clic :** ouvrir [`notebooks/RAG_Givaudan_Equipe10.ipynb`](notebooks/RAG_Givaudan_Equipe10.ipynb) dans Colab puis « Exécuter tout ».
+
 ## Données indexées
 
 `python ingest.py` indexe deux sources dans ChromaDB :
