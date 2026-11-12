@@ -17,6 +17,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 import config
+import direct_answers
 import rag
 import rerank
 
@@ -123,6 +124,14 @@ class AskResponse(BaseModel):
     answer: str
     model: str
     sources: list[Source]
+    answer_source: str = Field(
+        default="llm",
+        description=(
+            "Origine de la réponse : « donnees » (construite directement depuis les "
+            "données structurées, pour une référence citée ou une demande confidentielle) "
+            "ou « llm » (rédigée par le modèle)."
+        ),
+    )
 
 
 def retrieve(question: str, top_k: int, domain: str = "all") -> list[Source]:
@@ -198,6 +207,7 @@ def health() -> dict:
         "llm_model": config.LLM_MODEL,
         "embedding_model": config.EMBED_MODEL,
         "rerank": config.RERANK,
+        "direct_answers": config.DIRECT_ANSWERS,
         "knowledge_base_path": str(config.KNOWLEDGE_BASE_PATH),
         "orders_tracking_path": str(config.ORDERS_TRACKING_PATH),
     }
@@ -230,6 +240,19 @@ def ask(request: AskRequest) -> AskResponse:
             detail="Aucune information pertinente n'a été trouvée.",
         )
 
+    # Référence précise ou demande confidentielle : réponse directe, sans LLM.
+    if config.DIRECT_ANSWERS:
+        direct = direct_answers.direct_answer(request.question)
+        if direct is not None:
+            return AskResponse(
+                question=request.question,
+                domain=request.domain,
+                answer=direct,
+                model="données structurées",
+                sources=sources,
+                answer_source="donnees",
+            )
+
     context = "\n\n---\n\n".join(
         (
             f"[{source.section} | domaine={source.domain} | "
@@ -258,12 +281,19 @@ def ask(request: AskRequest) -> AskResponse:
             detail=f"Erreur lors de l'appel à Ollama : {exc}",
         ) from exc
 
+    answer = answer.strip()
+    if config.DIRECT_ANSWERS:
+        answer = direct_answers.ensure_reference(
+            request.question, answer, [source.model_dump() for source in sources]
+        )
+
     return AskResponse(
         question=request.question,
         domain=request.domain,
-        answer=answer.strip(),
+        answer=answer,
         model=config.LLM_MODEL,
         sources=sources,
+        answer_source="llm",
     )
 
 

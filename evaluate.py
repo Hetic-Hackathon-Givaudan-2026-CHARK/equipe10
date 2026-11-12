@@ -232,6 +232,7 @@ def main() -> None:
         "llm_model": config.LLM_MODEL,
         "top_k": args.top_k,
         "rerank": config.RERANK,
+        "direct_answers": config.DIRECT_ANSWERS,
         "retrieval_only": args.retrieval_only,
         "date": time.strftime("%Y-%m-%d %H:%M"),
     }
