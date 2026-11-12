@@ -700,7 +700,7 @@ def build_documents() -> list[dict]:
     for p in products:
         kind = "Arôme alimentaire" if p["domain"] == "Arôme" else "Fragrance"
         add(f"product_{p['product_id']}",
-            f"PRODUIT CATALOGUE | {p['reference']} — {p['name']} ({kind}, ID {p['product_id']}). "
+            f"PRODUIT CATALOGUE | Référence {p['reference']} — {p['name']} ({kind}). "
             f"Famille : {p['family']}. Profil sensoriel : {p['profile']}. "
             f"Applications recommandées : {p['applications']}. Intensité : {p['intensity']}. "
             f"Naturalité : {p['naturalness']}. Certifications : {p['certifications']}. "

@@ -49,6 +49,6 @@ def chat(messages: list[dict]) -> str:
     response = _ollama.chat(
         model=config.LLM_MODEL,
         messages=messages,
-        options={"temperature": 0.2},
+        options={"temperature": 0.2, "num_predict": config.MAX_ANSWER_TOKENS},
     )
     return response["message"]["content"]

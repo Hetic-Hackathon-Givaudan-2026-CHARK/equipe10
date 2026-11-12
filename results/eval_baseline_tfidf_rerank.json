@@ -6,7 +6,7 @@
     "top_k": 4,
     "rerank": true,
     "retrieval_only": true,
-    "date": "2026-11-12 20:12",
+    "date": "2026-11-12 21:50",
     "indexed_documents": 123
   },
   "summary": {
@@ -68,7 +68,7 @@
       ],
       "rank": 1,
       "answer": "",
-      "latency_s": 0.001,
+      "latency_s": 0.0009,
       "hit": true
     },
     {
@@ -86,7 +86,7 @@
       ],
       "rank": 1,
       "answer": "",
-      "latency_s": 0.0009,
+      "latency_s": 0.0008,
       "hit": true
     },
     {
@@ -104,7 +104,7 @@
       ],
       "rank": 2,
       "answer": "",
-      "latency_s": 0.0008,
+      "latency_s": 0.0009,
       "hit": true
     },
     {
@@ -140,7 +140,7 @@
       ],
       "rank": 1,
       "answer": "",
-      "latency_s": 0.0008,
+      "latency_s": 0.0007,
       "hit": true
     },
     {
@@ -158,7 +158,7 @@
       ],
       "rank": 1,
       "answer": "",
-      "latency_s": 0.0008,
+      "latency_s": 0.0006,
       "hit": true
     },
     {
@@ -176,7 +176,7 @@
       ],
       "rank": 1,
       "answer": "",
-      "latency_s": 0.0008,
+      "latency_s": 0.0007,
       "hit": true
     },
     {
@@ -194,7 +194,7 @@
       ],
       "rank": null,
       "answer": "",
-      "latency_s": 0.0007,
+      "latency_s": 0.0006,
       "hit": false
     },
     {
@@ -212,7 +212,7 @@
       ],
       "rank": 1,
       "answer": "",
-      "latency_s": 0.0008,
+      "latency_s": 0.0006,
       "hit": true
     },
     {
@@ -248,7 +248,7 @@
       ],
       "rank": 1,
       "answer": "",
-      "latency_s": 0.0008,
+      "latency_s": 0.0007,
       "hit": true
     },
     {
@@ -266,7 +266,7 @@
       ],
       "rank": 1,
       "answer": "",
-      "latency_s": 0.0008,
+      "latency_s": 0.0006,
       "hit": true
     },
     {
@@ -284,7 +284,7 @@
       ],
       "rank": 1,
       "answer": "",
-      "latency_s": 0.0008,
+      "latency_s": 0.0007,
       "hit": true
     },
     {
@@ -302,7 +302,7 @@
       ],
       "rank": 1,
       "answer": "",
-      "latency_s": 0.0008,
+      "latency_s": 0.0007,
       "hit": true
     },
     {
@@ -320,7 +320,7 @@
       ],
       "rank": 3,
       "answer": "",
-      "latency_s": 0.0008,
+      "latency_s": 0.0006,
       "hit": true
     },
     {
@@ -339,7 +339,7 @@
       ],
       "rank": 1,
       "answer": "",
-      "latency_s": 0.0008,
+      "latency_s": 0.0006,
       "hit": true
     },
     {
@@ -358,7 +358,7 @@
       ],
       "rank": 1,
       "answer": "",
-      "latency_s": 0.0008,
+      "latency_s": 0.0007,
       "hit": true
     },
     {
@@ -376,7 +376,7 @@
       ],
       "rank": 1,
       "answer": "",
-      "latency_s": 0.0008,
+      "latency_s": 0.0006,
       "hit": true
     },
     {
@@ -395,7 +395,7 @@
       ],
       "rank": 1,
       "answer": "",
-      "latency_s": 0.0008,
+      "latency_s": 0.0007,
       "hit": true
     },
     {
@@ -414,7 +414,7 @@
       ],
       "rank": 1,
       "answer": "",
-      "latency_s": 0.0008,
+      "latency_s": 0.0006,
       "hit": true
     },
     {
@@ -432,7 +432,7 @@
       ],
       "rank": 1,
       "answer": "",
-      "latency_s": 0.0008,
+      "latency_s": 0.0006,
       "hit": true
     },
     {
@@ -450,7 +450,7 @@
       ],
       "rank": 1,
       "answer": "",
-      "latency_s": 0.0008,
+      "latency_s": 0.0007,
       "hit": true
     },
     {
@@ -468,7 +468,7 @@
       ],
       "rank": 1,
       "answer": "",
-      "latency_s": 0.0008,
+      "latency_s": 0.0007,
       "hit": true
     },
     {
@@ -486,7 +486,7 @@
       ],
       "rank": 1,
       "answer": "",
-      "latency_s": 0.0008,
+      "latency_s": 0.0007,
       "hit": true
     },
     {
@@ -505,7 +505,7 @@
       ],
       "rank": 2,
       "answer": "",
-      "latency_s": 0.0008,
+      "latency_s": 0.0007,
       "hit": true
     },
     {
@@ -559,7 +559,7 @@
       ],
       "rank": 2,
       "answer": "",
-      "latency_s": 0.0007,
+      "latency_s": 0.0006,
       "hit": true
     },
     {
@@ -575,7 +575,7 @@
       ],
       "rank": null,
       "answer": "",
-      "latency_s": 0.0008,
+      "latency_s": 0.0007,
       "refusal_ok": null
     },
     {
@@ -591,7 +591,7 @@
       ],
       "rank": null,
       "answer": "",
-      "latency_s": 0.0008,
+      "latency_s": 0.0007,
       "refusal_ok": null
     }
   ]

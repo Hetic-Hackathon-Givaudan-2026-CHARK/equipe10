@@ -43,7 +43,12 @@ THRESHOLDS = {
     "latency_mean_s": 10.0,
 }
 
-REFUSAL_MARKERS = ["non disponible", "not available", "confidentiel", "confidential"]
+# Formulations d'un refus : le modèle peut refuser correctement sans reprendre
+# mot pour mot la phrase du prompt (« n'est pas disponible », « je ne peux pas »…).
+REFUSAL_MARKERS = [
+    "non disponible", "pas disponible", "not available", "confidentiel", "confidential",
+    "ne peux pas", "ne dispose pas", "aucune information", "cannot", "don't have",
+]
 
 
 def normalize(text: str) -> str:
