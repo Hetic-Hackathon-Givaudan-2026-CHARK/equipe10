@@ -48,7 +48,7 @@ Sur Colab : `notebooks/RAG_Givaudan_Equipe10.ipynb` déroule tout (installation,
 - `GET /health` — documents indexés et modèles utilisés
 - `POST /search` — documents pertinents (`doc_id`, `document_type`, `domain`, score)
 - `POST /ask` — réponse rédigée à partir des documents retrouvés ; `domain` = `fragrance`, `dairy_aroma` ou `all`
-- `GET /orders/{order_id}` — suivi d'une commande (`CMD-2026-xxx` du prototype ou `ORD-2026-xxx` du dataset)
+- `GET /orders/{order_id}` — suivi d'une commande (`CMD-2026-xxx` du prototype ou `ORD-2026-xxx` du dataset), toujours au même format
 - `GET /demo/ping` — endpoint factice pour la démo ngrok
 
 ## Évaluation du modèle
@@ -82,7 +82,8 @@ V2 = `qwen3-embedding:4b`. Protocole et seuils : [docs/EVALUATION.md](docs/EVALU
 │   ├── rag/documents.jsonl  # documents du dataset avec métadonnées
 │   ├── eval/                # 30 cas de référence
 │   ├── rag_knowledge_base_prototype.csv   # base de connaissances du chatbot
-│   └── orders_tracking_prototype.csv      # suivi de commandes du prototype
+│   ├── orders_tracking_prototype.csv      # suivi de commandes du prototype (CMD-2026-xxx)
+│   └── orders_tracking_dataset.csv        # suivi des commandes du dataset, même format (ORD-2026-xxx)
 ├── results/                 # rapports d'évaluation (générés par evaluate.py)
 ├── notebooks/               # notebook Colab de démonstration
 └── docs/                    # protocole d'évaluation, étude des modèles, captures de la démo V1

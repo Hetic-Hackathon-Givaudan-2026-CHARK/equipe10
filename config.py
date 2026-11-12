@@ -80,6 +80,14 @@ ORDERS_TRACKING_PATH = Path(
         str(BASE_DIR / "data" / "orders_tracking_prototype.csv"),
     )
 )
+
 # Commandes du dataset synthétique (ORD-2026-xxx), générées par
-# generate_dataset.py. Également consultables via GET /orders/{order_id}.
-DATASET_ORDERS_PATH = BASE_DIR / "data" / "raw" / "orders.csv"
+# generate_dataset.py au même format que ORDERS_TRACKING_PATH.
+# Également consultées par GET /orders/{order_id}.
+DATASET_ORDERS_PATH = Path(
+    os.getenv(
+        "DATASET_ORDERS_PATH",
+        str(BASE_DIR / "data" / "orders_tracking_dataset.csv"),
+    )
+)
+

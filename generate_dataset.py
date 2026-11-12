@@ -785,6 +785,55 @@ def build_documents() -> list[dict]:
 # 11. ÉCRITURE DES FICHIERS
 # ============================================================
 
+TRACKING_COLUMNS = [
+    "order_id", "customer_reference", "domain", "product_or_brief", "quantity", "unit",
+    "order_status", "status_updated_at", "estimated_delivery_date", "tracking_message",
+    "next_action", "owner_team", "notes",
+]
+
+TRACKING_BY_STATUS = {
+    # statut : (message de suivi, prochaine action)
+    "Confirmée": ("La commande est confirmée et en attente de planification.", "Planifier la production"),
+    "En préparation": ("Les matières premières sont réservées et la production est planifiée.", "Lancer la production"),
+    "En production": ("Le lot est en cours de fabrication.", "Préparer l'expédition"),
+    "Expédiée": ("La commande a été expédiée.", "Suivre la livraison"),
+    "Livrée": ("La commande a été livrée.", "Aucune"),
+    "Annulée": ("La commande a été annulée.", "Aucune"),
+}
+
+
+def order_tracking_row(order: dict) -> dict:
+    """Commande du dataset au format de data/orders_tracking_prototype.csv."""
+    product = product_by_id[order["product_id"]]
+    domain = app_domain(product)
+    product_or_brief = f"{product['reference']} {product['name']}"
+    if order["project_id"]:
+        product_or_brief += f" - {project_by_id[order['project_id']]['title']}"
+    message, next_action = TRACKING_BY_STATUS[order["status"]]
+    if order["status"] in {"Expédiée", "Livrée"}:
+        owner_team = "Logistics"
+    elif order["status"] == "Annulée":
+        owner_team = "Sales"
+    else:
+        owner_team = "Operations fragrance" if domain == "fragrance" else "Operations aromas"
+    updated = order["delivery_date"] if order["status"] == "Livrée" else order["order_date"]
+    return {
+        "order_id": order["order_id"],
+        "customer_reference": order["client_id"],
+        "domain": domain,
+        "product_or_brief": product_or_brief,
+        "quantity": order["quantity_kg"],
+        "unit": "kg",
+        "order_status": order["status"],
+        "status_updated_at": f"{updated}T09:00:00",
+        "estimated_delivery_date": order["delivery_date"],
+        "tracking_message": f"{message} {order['comment']}",
+        "next_action": next_action,
+        "owner_team": owner_team,
+        "notes": "Données fictives de démonstration - ne pas utiliser comme données client.",
+    }
+
+
 def write_csv(filename: str, data: list[dict]) -> None:
     path = RAW_DIR / filename
     with path.open("w", newline="", encoding="utf-8") as file:
@@ -810,6 +859,14 @@ def main() -> None:
         for o in orders
     ])
     write_csv("faq.csv", [{"faq_id": f, "title": t, "text": x} for f, t, x in faqs])
+
+    # Suivi des commandes au même format que data/orders_tracking_prototype.csv,
+    # pour que GET /orders/{order_id} renvoie un seul format aux interfaces.
+    tracking_path = DATA_DIR / "orders_tracking_dataset.csv"
+    with tracking_path.open("w", newline="", encoding="utf-8") as file:
+        writer = csv.DictWriter(file, fieldnames=TRACKING_COLUMNS)
+        writer.writeheader()
+        writer.writerows(order_tracking_row(o) for o in orders)
 
     documents = build_documents()
 
