@@ -10,9 +10,9 @@ même pipeline que l'API (recherche ChromaDB + réponse du LLM) et calcule :
   - Latence      : temps moyen et p95 de /ask (recherche + génération).
 
 Usage :
-    python evaluate.py --label v1
-    python evaluate.py --label v2                 # après avoir changé EMBED_MODEL / LLM_MODEL
-    python evaluate.py --label v1 --retrieval-only  # recherche seule, sans LLM (rapide)
+    python evaluate.py --label v2_nomic                # EMBED_MODEL=nomic-embed-text
+    python evaluate.py --label v2_qwen3                # EMBED_MODEL=qwen3-embedding:4b (après réindexation)
+    python evaluate.py --label v2_nomic --retrieval-only  # recherche seule, sans LLM (rapide)
 
 Les résultats sont écrits dans results/eval_<label>.json et results/eval_<label>.md.
 Pré-requis : `python ingest.py` avec le même EMBED_MODEL.
@@ -179,7 +179,7 @@ def write_markdown(path: Path, label: str, meta: dict, summary: dict, results: l
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Évalue le RAG sur le jeu de référence.")
-    parser.add_argument("--label", default="v1", help="nom de la version évaluée (ex. v1, v2)")
+    parser.add_argument("--label", default="v2", help="nom de la configuration évaluée (ex. v2_nomic, v2_qwen3)")
     parser.add_argument("--cases", default=str(DEFAULT_CASES))
     parser.add_argument("--top-k", type=int, default=config.TOP_K)
     parser.add_argument("--retrieval-only", action="store_true", help="évalue seulement la recherche")

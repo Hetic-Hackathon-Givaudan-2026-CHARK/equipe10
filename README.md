@@ -10,11 +10,23 @@ livraison. L'assistant IA répond uniquement à partir de données **100 % ficti
 |---|---|
 | 1. Données nettoyées et préparées | [`data/raw/`](data/raw) (tables CSV) et [`generate_dataset.py`](generate_dataset.py) (génération + contrôles de cohérence) |
 | 2. Pipeline de traitement fonctionnel | [`ingest.py`](ingest.py) → ChromaDB → [`api.py`](api.py) ; démo complète dans [`notebooks/`](notebooks) |
-| 3. Modèle V2 publié | V2 = embeddings `qwen3-embedding:4b` + LLM `qwen2.5:1.5b` ; choix justifié par [`results/`](results) et [`docs/etude_benchmark_embeddings.pdf`](docs/etude_benchmark_embeddings.pdf) |
-| 4. Métriques et protocole sur 30 cas | [`docs/EVALUATION.md`](docs/EVALUATION.md), [`data/eval/reference_cases.json`](data/eval/reference_cases.json), rapports V1/V2 dans [`results/`](results) |
+| 3. Modèle V2 publié | V2 = branche `main` (V1 de mardi : tag [`v1`](https://github.com/Hetic-Hackathon-Givaudan-2026-CHARK/equipe10/releases/tag/v1)) ; embeddings `qwen3-embedding:4b` + LLM `qwen2.5:1.5b`, choix justifié par [`results/`](results) et [`docs/etude_benchmark_embeddings.pdf`](docs/etude_benchmark_embeddings.pdf) |
+| 4. Métriques et protocole sur 30 cas | [`docs/EVALUATION.md`](docs/EVALUATION.md), [`data/eval/reference_cases.json`](data/eval/reference_cases.json), rapports dans [`results/`](results) |
 | 5. API renvoyant les résultats réels | [`api.py`](api.py), documentée par Swagger (`/docs`) et exposée via ngrok depuis le notebook |
 
 **Tester en 1 clic :** ouvrir [`notebooks/RAG_Givaudan_Equipe10.ipynb`](notebooks/RAG_Givaudan_Equipe10.ipynb) dans Colab puis « Exécuter tout ».
+
+## Historique des versions
+
+| Version | Date | Contenu | Où la voir |
+|---|---|---|---|
+| **V1** | mardi 10 novembre | Premier prototype démontré : dataset de 29 documents (clients, produits, matières premières, commandes, échantillons), ingestion ChromaDB, API FastAPI (`/health`, `/search`, `/ask`, `/demo/ping`) exposée via ngrok, `qwen3-embedding:4b` + `qwen2.5:1.5b`, étude comparative des modèles d'embeddings | tag [`v1`](https://github.com/Hetic-Hackathon-Givaudan-2026-CHARK/equipe10/releases/tag/v1), captures de la démo dans [`docs/captures-demo-v1/`](docs/captures-demo-v1) |
+| **V2** | jeudi 12 novembre | Dataset complet (103 documents : catalogue de 30 produits, projets de création, échantillons V1/V2/V3, commandes, FAQ) + base de connaissances du chatbot (20 fiches) ; ingestion corrigée ; filtre par domaine ; suivi des commandes `GET /orders/{id}` ; évaluation sur 30 cas de référence | branche `main` |
+
+**Ce que la V2 corrige par rapport à la V1** (visible sur les captures de la démo V1) : chaque
+fiche du dataset était mal découpée — toutes les sources avaient la section « Introduction »
+et le type « unknown », et chaque passage mélangeait plusieurs fiches. La V2 indexe une fiche
+par document, avec son type et son domaine. Détail dans [docs/EVALUATION.md](docs/EVALUATION.md).
 
 ## Données indexées
 
@@ -53,7 +65,7 @@ uvicorn api:app --reload        # Swagger : http://127.0.0.1:8000/docs
 ```
 
 Sur Colab : `notebooks/RAG_Givaudan_Equipe10.ipynb` déroule tout (installation, dataset,
-évaluation V1/V2, API, ngrok). Le token ngrok se met dans les *Secrets* Colab (`NGROK_AUTHTOKEN`).
+évaluation, API, ngrok). Le token ngrok se met dans les *Secrets* Colab (`NGROK_AUTHTOKEN`).
 
 ## API
 
@@ -66,8 +78,8 @@ Sur Colab : `notebooks/RAG_Givaudan_Equipe10.ipynb` déroule tout (installation,
 ## Évaluation du modèle
 
 30 cas de référence (`data/eval/reference_cases.json`) et `evaluate.py` : Hit@k, MRR,
-exactitude des réponses, refus corrects, latence. V1 = `nomic-embed-text`,
-V2 = `qwen3-embedding:4b`. Protocole et seuils : [docs/EVALUATION.md](docs/EVALUATION.md).
+exactitude des réponses, refus corrects, latence. Deux modèles d'embeddings comparés pour la V2 :
+`nomic-embed-text` et `qwen3-embedding:4b`. Protocole et seuils : [docs/EVALUATION.md](docs/EVALUATION.md).
 
 ## Critères d'acceptation minimum
 
@@ -76,7 +88,7 @@ V2 = `qwen3-embedding:4b`. Protocole et seuils : [docs/EVALUATION.md](docs/EVALU
 - `POST /search` renvoie des passages pertinents pour une question produit ou commande.
 - `POST /ask` produit une réponse fondée sur le contexte retrouvé.
 - `GET /demo/ping` est joignable en local et via ngrok.
-- `python evaluate.py` produit les rapports V1 et V2 dans `results/`.
+- `python evaluate.py` produit les rapports d'évaluation dans `results/`.
 
 ## Organisation du dépôt
 
