@@ -24,7 +24,7 @@ Mesurés sur les **30 cas de référence** et sur **10 cas inédits** (écrits a
 jamais utilisés pour régler le système). Évaluation lancée par GitHub Actions avec les vrais
 modèles Ollama, **sur processeur (sans GPU)** ; tableau complet : [`results/SYNTHESE.md`](results/SYNTHESE.md).
 
-### Modèle retenu pour la V2 : `qwen3-embedding:4b` + `qwen2.5:3b` (version V2.1)
+### Modèle retenu pour la V2 : `qwen3-embedding:4b` + `qwen2.5:3b` (version V2.2)
 
 | Critère (30 cas) | Seuil | Résultat | |
 |---|---|---|---|
@@ -32,10 +32,10 @@ modèles Ollama, **sur processeur (sans GPU)** ; tableau complet : [`results/SYN
 | MRR (bon document en tête) | ≥ 0,75 | **0,964** | ✅ |
 | Réponses exactes | ≥ 80 % | **27/28 (96,4 %)** | ✅ |
 | Refus corrects (questions pièges) | 100 % | **2/2 (100 %)** | ✅ |
-| Latence moyenne | ≤ 10 s | 32 s sur processeur | ❌ → GPU nécessaire |
+| Latence moyenne | ≤ 10 s | 21,6 s sur processeur | ❌ → GPU nécessaire |
 
 Sur les **10 cas inédits** : bon document trouvé 9/9, MRR 0,944, réponses exactes 7/9 (77,8 %),
-refus 1/1.
+refus 1/1. L'API indique pour chaque réponse si elle vient des données ou du LLM (`answer_source`).
 
 ### Comment on y est arrivé
 
@@ -46,7 +46,9 @@ refus 1/1.
 | V2 — `nomic-embed-text` + `qwen2.5:1.5b` | 27/28 | 0,929 | 16/28 (57 %) | 2/2 | 16 s |
 | V2 — `qwen3-embedding:4b` + `qwen2.5:1.5b` | **28/28** | **0,964** | 15/28 (54 %) | 0/2 | 17 s |
 | V2.1 — `qwen3-embedding:4b` + `qwen2.5:1.5b` | 28/28 | 0,964 | 23/28 (82 %) | 0/2 | 18 s |
-| **V2.1 — `qwen3-embedding:4b` + `qwen2.5:3b`** | **28/28** | **0,964** | **27/28 (96 %)** | **2/2** | 32 s |
+| V2.1 — `qwen3-embedding:4b` + `qwen2.5:3b` | 28/28 | 0,964 | 27/28 (96 %) | 2/2 | 32 s |
+| V2.2 — `qwen3-embedding:4b` + `qwen2.5:1.5b` | 28/28 | 0,964 | 25/28 (89 %) | 1/2 | 5 s |
+| **V2.2 — `qwen3-embedding:4b` + `qwen2.5:3b`** | **28/28** | **0,964** | **27/28 (96 %)** | **2/2** | **22 s** |
 
 1. **Recherche** : `qwen3-embedding:4b` trouve le bon document dans 100 % des cas et bat la
    baseline sans IA (MRR 0,964 contre 0,690) ; le reclassement ([`rerank.py`](rerank.py)) aide
@@ -61,7 +63,14 @@ refus 1/1.
 4. **Choix du LLM** : `qwen2.5:1.5b` monte à 82 % mais **invente une formule et un prix** sur les
    questions pièges (0/2 refus), ce qui est inacceptable pour des données Givaudan ;
    `qwen2.5:3b` atteint 96 % et refuse correctement. **On retient `qwen2.5:3b`.**
-5. **Latence** : 32 s par réponse sur les serveurs GitHub sans GPU. Le modèle doit tourner sur
+5. **V2.2** : quand la question cite une commande ou un produit (`ORD-2026-007`, `FRG-108`…),
+   la réponse est construite directement depuis les données structurées, sans LLM
+   ([`direct_answers.py`](direct_answers.py)) : exacte, instantanée, sans invention possible.
+   Une question sur une formule est refusée d'office (confidentialité), et la référence du
+   produit recommandé est ajoutée si le LLM l'oublie. Même exactitude (96 %), **latence moyenne
+   réduite d'un tiers** (32 s → 22 s). Avec `1.5b`, la V2.2 descend à 5 s mais invente encore un
+   prix sur une question piège : `qwen2.5:3b` reste le choix sûr.
+6. **Latence** : 22 s par réponse sur les serveurs GitHub sans GPU. Le modèle doit tourner sur
    GPU (Colab T4 dans le notebook de démo) pour respecter le seuil de 10 s.
 
 **Limites** : l'exactitude est mesurée par mots-clés (une réponse juste formulée autrement peut
@@ -79,6 +88,7 @@ modification (badge en haut de page). Évaluation complète relançable depuis l
 | **V1** | mardi 10 novembre | Premier prototype démontré : dataset de 29 documents (clients, produits, matières premières, commandes, échantillons), ingestion ChromaDB, API FastAPI (`/health`, `/search`, `/ask`, `/demo/ping`) exposée via ngrok, `qwen3-embedding:4b` + `qwen2.5:1.5b`, étude comparative des modèles d'embeddings | tag [`v1`](https://github.com/Hetic-Hackathon-Givaudan-2026-CHARK/equipe10/releases/tag/v1), captures de la démo dans [`docs/captures-demo-v1/`](docs/captures-demo-v1) |
 | **V2** | jeudi 12 novembre | Dataset complet (103 documents : catalogue de 30 produits, projets de création, échantillons V1/V2/V3, commandes, FAQ) + base de connaissances du chatbot (20 fiches) ; ingestion corrigée ; reclassement des résultats ; filtre par domaine ; suivi des commandes `GET /orders/{id}` ; évaluation sur 30 cas de référence + 10 inédits ; 73 tests automatiques ; API ouverte aux interfaces web (CORS) et contrat documenté | branche `main` |
 | **V2.1** | jeudi 12 novembre (soir) | Corrections issues de l'analyse des erreurs de la V2 (fiches produit, prompt), choix du LLM `qwen2.5:3b` sur mesures : 96 % de réponses exactes, 100 % de refus corrects | branche `main` |
+| **V2.2** | jeudi 12 novembre (soir) | Réponses directes depuis les données pour les questions citant une commande ou un produit, refus d'office des demandes de formule, référence produit garantie : même exactitude, latence réduite d'un tiers | branche `main` |
 
 **Ce que la V2 corrige par rapport à la V1** (visible sur les captures de la démo V1) : chaque
 fiche du dataset était mal découpée — toutes les sources avaient la section « Introduction »

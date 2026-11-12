@@ -45,7 +45,7 @@ def test_ask(client):
     response = client.post("/ask", json={"question": "Où en est le projet PJ-003 ?"})
     assert response.status_code == 200
     body = response.json()
-    assert body["answer"] and body["sources"]
+    assert body["answer"] and body["sources"] and body["answer_source"] == "llm"
 
 
 def test_validation_de_la_requete(client):
@@ -79,3 +79,9 @@ def test_contrat_openapi_a_jour(indexed):
     exported = json.loads((Path(__file__).resolve().parents[1] / "docs" / "openapi.json").read_text(encoding="utf-8"))
     assert exported == json.loads(json.dumps(indexed.app.openapi())), \
         "docs/openapi.json n'est plus à jour : lancer python export_openapi.py"
+
+
+def test_ask_reponse_directe(client):
+    body = client.post("/ask", json={"question": "Quel est le statut de la commande ORD-2026-007 ?"}).json()
+    assert body["answer_source"] == "donnees"
+    assert "Expédiée" in body["answer"] and body["sources"][0]["doc_id"] == "order_ORD-2026-007"

@@ -1,0 +1,671 @@
+{
+  "meta": {
+    "label": "v22_qwen3_llm1.5b",
+    "embed_model": "qwen3-embedding:4b",
+    "llm_model": "qwen2.5:1.5b",
+    "top_k": 4,
+    "rerank": true,
+    "direct_answers": true,
+    "retrieval_only": false,
+    "date": "2026-11-12 21:33"
+  },
+  "summary": {
+    "cases": 30,
+    "answerable_cases": 28,
+    "hits": 28,
+    "errors": 0,
+    "hit_at_k": 1.0,
+    "mrr": 0.9642857142857143,
+    "latency_mean_s": 5.237,
+    "latency_p95_s": 8.539,
+    "answers_ok": 25,
+    "answer_accuracy": 0.8928571428571429,
+    "refusal_accuracy": 0.5,
+    "by_category": {
+      "recommandation": {
+        "n": 8,
+        "hits": 8,
+        "answers_ok": 7
+      },
+      "fiche_produit": {
+        "n": 5,
+        "hits": 5,
+        "answers_ok": 5
+      },
+      "suivi_projet": {
+        "n": 7,
+        "hits": 7,
+        "answers_ok": 6
+      },
+      "commande": {
+        "n": 5,
+        "hits": 5,
+        "answers_ok": 4
+      },
+      "faq": {
+        "n": 3,
+        "hits": 3,
+        "answers_ok": 3
+      }
+    },
+    "validation": {
+      "hit_at_k": true,
+      "mrr": true,
+      "answer_accuracy": true,
+      "refusal_accuracy": false,
+      "latency_mean_s": true
+    },
+    "validated": false
+  },
+  "results": [
+    {
+      "id": "Q01",
+      "category": "recommandation",
+      "question": "Je cherche un arôme mangue pour une boisson protéinée, plutôt naturel et vegan. Que proposez-vous ?",
+      "expected_doc_ids": [
+        "product_PR-001"
+      ],
+      "retrieved_doc_ids": [
+        "product_PR-001",
+        "product_PR-011",
+        "product_PR-014",
+        "project_PJ-001"
+      ],
+      "rank": 1,
+      "answer": "Je vous suggère le produit FLV-201 Mangue Passion, de la famille Fruité. C'est un arôme alimentaire naturel et vegan, idéal pour une boisson protéinée. Il offre une saveur mûre et fruitée, sans arrière-goût de protéine, et est stable à la pasteurisation. C'est un produit disponible et recommandé pour diverses applications, notamment pour les shakes protéinés.",
+      "latency_s": 11.94,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "Q02",
+      "category": "recommandation",
+      "question": "Quel arôme utiliser pour masquer l'amertume des protéines dans un shake ?",
+      "expected_doc_ids": [
+        "product_PR-014"
+      ],
+      "retrieved_doc_ids": [
+        "product_PR-014",
+        "product_PR-007",
+        "product_PR-001",
+        "product_PR-008"
+      ],
+      "rank": 1,
+      "answer": "Pour masquer l'amertume des protéines dans un shake, je recommande le produit Masquant Protéine (FLV-214). Ce produit est conçu pour neutraliser les notes amères et métalliques des protéines, ce qui est parfait pour ce type de demande. Il est recommandé pour les shakes protéinés, barres protéinées et boissons protéinées. Sa intensité est faible, ce qui convient bien à ce type de produit. Il est naturel, vegan et halal, ce qui est une excellente option pour une alimentation équilibrée. Il est disponible sur les marchés français, allemands, belges et belges, ce qui assure une large distribution. Le dosage recommandé est de 0,05 à 0,10 %, ce qui est suffisant pour masquer l'amertume sans perturber le goût du produit final.",
+      "latency_s": 10.597,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "Q03",
+      "category": "recommandation",
+      "question": "Je veux une fragrance pour une lessive liquide avec une odeur de linge propre.",
+      "expected_doc_ids": [
+        "product_PR-021"
+      ],
+      "retrieved_doc_ids": [
+        "project_PJ-003",
+        "product_PR-021",
+        "sample_SMP-007",
+        "sample_SMP-006"
+      ],
+      "rank": 2,
+      "answer": "Je vous suggère de commander le produit FRG-105 Fraîcheur Linge Pur, qui correspond à votre besoin. Ce produit est une lessive liquide avec une odeur de linge propre fleuri qui reste perceptible sur le linge sec. Il est disponible dans la famille Propre, avec une intensité forte et une naturalité élevée. C'est un produit de haute qualité, naturel et respectueux de l'environnement.",
+      "latency_s": 7.936,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "Q04",
+      "category": "recommandation",
+      "question": "Quelle fragrance convient à une crème pour peaux sensibles, sans allergène à déclarer ?",
+      "expected_doc_ids": [
+        "product_PR-026"
+      ],
+      "retrieved_doc_ids": [
+        "project_PJ-010",
+        "product_PR-026",
+        "product_PR-017",
+        "product_PR-018"
+      ],
+      "rank": 2,
+      "answer": "Pour une crème visage pour peaux sensibles sans allergène à déclarer, je recommande la référence FRG-110 Thé Vert Hypoallergénique de la famille Frais. Ce produit est conçu pour être utilisé comme crème visage, lingettes bébé, et soins peaux sensibles, avec une intensité faible et une naturalité élevée.",
+      "latency_s": 7.83,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "Q05",
+      "category": "recommandation",
+      "question": "Avez-vous un arôme agrume compatible avec une boisson sans sucre ?",
+      "expected_doc_ids": [
+        "product_PR-012"
+      ],
+      "retrieved_doc_ids": [
+        "product_PR-012",
+        "product_PR-005",
+        "product_PR-002",
+        "knowledge-FRG-004"
+      ],
+      "rank": 1,
+      "answer": "Je peux vous proposer l'arôme Citron Yuzu Zéro Sucre, qui correspond parfaitement à vos besoins. Il est naturel, vegan, halal et bio, et est idéal pour des boissons sans sucre. Il a une intensité moyenne et un dosage recommandé de 0,08 à 0,12 %. Ce produit est disponible en quantité minimale de 5 kg et est fabriqué en 25 jours ouvrés. (Référence : FLV-212 — Citron Yuzu Zéro Sucre.)",
+      "latency_s": 7.038,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "Q06",
+      "category": "recommandation",
+      "question": "Je cherche une fragrance lavande, naturelle à plus de 80 %, pour un nettoyant ménager écologique.",
+      "expected_doc_ids": [
+        "product_PR-023"
+      ],
+      "retrieved_doc_ids": [
+        "product_PR-023",
+        "project_PJ-008",
+        "product_PR-021",
+        "product_PR-027"
+      ],
+      "rank": 1,
+      "answer": "Je vous recommande le produit FRG-107 Lavande de Provence, de la famille Aromatique, avec une intensité moyenne et une naturalité supérieure à 80 %. Il est recommandé pour diverses applications ménagères, incluant le nettoyant ménager écologique. Sa composition naturelle et sa stabilité garantissent une bonne compatibilité avec les produits de nettoyage.",
+      "latency_s": 8.279,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "Q07",
+      "category": "recommandation",
+      "question": "Quel arôme chocolat résiste à la cuisson pour un biscuit ?",
+      "expected_doc_ids": [
+        "product_PR-006"
+      ],
+      "retrieved_doc_ids": [
+        "product_PR-006",
+        "product_PR-009",
+        "product_PR-003",
+        "product_PR-007"
+      ],
+      "rank": 1,
+      "answer": "Le produit qui résiste à la cuisson jusqu'à 180 °C pour un biscuit est le Chocolat Noisette (Arôme alimentaire) avec la référence FLV-206.",
+      "latency_s": 6.332,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "Q08",
+      "category": "recommandation",
+      "question": "Which fragrance would suit a sunscreen with a coconut scent?",
+      "expected_doc_ids": [
+        "product_PR-028"
+      ],
+      "retrieved_doc_ids": [
+        "product_PR-028",
+        "product_PR-011",
+        "product_PR-018",
+        "product_PR-022"
+      ],
+      "rank": 1,
+      "answer": "The fragrance that would suit a sunscreen with a coconut scent is **Coco Monoï** (FLV-112). It belongs to the Solaire family and offers a profile of noix de coco, fleur de tiaré, and vanille, making it perfect for a sunscreen with a coconut aroma.",
+      "latency_s": 6.53,
+      "hit": true,
+      "answer_ok": false,
+      "missing": [
+        [
+          "FRG-112"
+        ]
+      ]
+    },
+    {
+      "id": "Q09",
+      "category": "fiche_produit",
+      "question": "Quel est le prix au kilo et la quantité minimale de commande de FRG-108 ?",
+      "expected_doc_ids": [
+        "product_PR-024"
+      ],
+      "retrieved_doc_ids": [
+        "product_PR-024",
+        "order_ORD-2026-003",
+        "order_ORD-2026-010",
+        "order_ORD-2026-008"
+      ],
+      "rank": 1,
+      "answer": "FRG-108 — Fleur d'Oranger Lumineuse (fragrance, famille floral) : profil néroli, fleur d'oranger, miel ; applications : parfum fin, brume corps ; intensité forte ; naturalité : 40 % d'origine naturelle ; allergènes : linalol, géraniol ; dosage recommandé : 10 à 15 % en parfum fin ; prix indicatif 145 €/kg ; quantité minimale de commande 2 kg ; délai de fabrication 25 jours ouvrés ; marchés : France, Belgique, Espagne ; statut : disponible.",
+      "latency_s": 0.471,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "Q10",
+      "category": "fiche_produit",
+      "question": "Quels allergènes contient la fragrance Éclat Agrumes ?",
+      "expected_doc_ids": [
+        "product_PR-019"
+      ],
+      "retrieved_doc_ids": [
+        "product_PR-019",
+        "faq_allergenes",
+        "knowledge-FRG-004",
+        "product_PR-030"
+      ],
+      "rank": 1,
+      "answer": "La fragrance Éclat Agrumes contient les allergènes limonène et citral.",
+      "latency_s": 4.54,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "Q11",
+      "category": "fiche_produit",
+      "question": "L'arôme Vanille Amande FLV-207 est-il disponible en Allemagne ?",
+      "expected_doc_ids": [
+        "product_PR-007"
+      ],
+      "retrieved_doc_ids": [
+        "product_PR-007",
+        "product_PR-003",
+        "product_PR-020",
+        "product_PR-013"
+      ],
+      "rank": 1,
+      "answer": "FLV-207 — Vanille Amande (arôme alimentaire, famille gourmand) : profil vanille crémeuse, amande, biscuit ; applications : shake protéiné ; intensité moyenne ; naturalité : nature-identique ; allergènes : fruits à coque (amande) ; dosage recommandé : 0,20 à 0,30 % ; prix indicatif 33 €/kg ; quantité minimale de commande 10 kg ; délai de fabrication 20 jours ouvrés ; marchés : France, Belgique ; statut : restreint (vente limitée à la France et à la Belgique, revue réglementaire en cours pour les autres pays).",
+      "latency_s": 0.486,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "Q12",
+      "category": "fiche_produit",
+      "question": "Quel est le délai de fabrication de l'arôme Citron Gingembre ?",
+      "expected_doc_ids": [
+        "product_PR-002"
+      ],
+      "retrieved_doc_ids": [
+        "product_PR-002",
+        "raw_material_RM-006",
+        "product_PR-027",
+        "product_PR-019"
+      ],
+      "rank": 1,
+      "answer": "Le délai de fabrication de l'arôme Citron Gingembre est de 15 jours ouvrés.",
+      "latency_s": 5.248,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "Q13",
+      "category": "fiche_produit",
+      "question": "Quel est le dosage recommandé pour l'arôme Menthe Glaciale ?",
+      "expected_doc_ids": [
+        "product_PR-010"
+      ],
+      "retrieved_doc_ids": [
+        "product_PR-010",
+        "raw_material_RM-011",
+        "knowledge-ARM-007",
+        "product_PR-007"
+      ],
+      "rank": 1,
+      "answer": "Le dosage recommandé pour l'arôme Menthe Glaciale est de 0,05 à 0,10 %.",
+      "latency_s": 4.73,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "Q14",
+      "category": "suivi_projet",
+      "question": "Où en est le projet de lessive de Lumina Laundry ?",
+      "expected_doc_ids": [
+        "project_PJ-003"
+      ],
+      "retrieved_doc_ids": [
+        "project_PJ-003",
+        "sample_SMP-006",
+        "client_CL-007",
+        "sample_SMP-007"
+      ],
+      "rank": 1,
+      "answer": "Le projet de lessive de Lumina Laundry est actuellement en rectification, avec un avancement de 60%. Le projet a été créé le 18 août 2026 et a été initiallement formulé en version V1. Une échantillonnage a été envoyée le 1er septembre 2026, et une version V2 a été formulée le 29 septembre 2026. La version actuelle est V3, qui a été formulée en octobre 2026 et est prévue pour être envoyée le 20 novembre 2026.",
+      "latency_s": 6.418,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "Q15",
+      "category": "suivi_projet",
+      "question": "Pourquoi la V1 de l'échantillon de boisson protéinée de NutriPeak n'a-t-elle pas été validée ?",
+      "expected_doc_ids": [
+        "sample_SMP-001"
+      ],
+      "retrieved_doc_ids": [
+        "sample_SMP-001",
+        "sample_SMP-003",
+        "sample_SMP-002",
+        "sample_SMP-010"
+      ],
+      "rank": 1,
+      "answer": "La V1 de l'échantillon de boisson protéinée de NutriPeak n'a pas été validée car le retour du client indiquait qu'il y avait encore un arrière-goût de protéine perceptible, ce qui a été jugé trop acide en bouche.",
+      "latency_s": 5.795,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "Q16",
+      "category": "suivi_projet",
+      "question": "Combien de versions ont été nécessaires pour valider le shake mangue de NutriPeak ?",
+      "expected_doc_ids": [
+        "project_PJ-001",
+        "sample_SMP-003"
+      ],
+      "retrieved_doc_ids": [
+        "project_PJ-001",
+        "sample_SMP-003",
+        "sample_SMP-001",
+        "sample_SMP-002"
+      ],
+      "rank": 1,
+      "answer": "Pour valider le shake protéiné mangue de NutriPeak, il a fallu trois versions : V1, V2 et V3.",
+      "latency_s": 6.045,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "Q17",
+      "category": "suivi_projet",
+      "question": "Quel retour la Biscuiterie Ondine a-t-elle donné sur son échantillon caramel ?",
+      "expected_doc_ids": [
+        "sample_SMP-009",
+        "project_PJ-005"
+      ],
+      "retrieved_doc_ids": [
+        "sample_SMP-009",
+        "client_CL-008",
+        "project_PJ-005",
+        "sample_SMP-004"
+      ],
+      "rank": 1,
+      "answer": "La Biscuiterie Ondine a donné un retour positif sur son échantillon de caramel, notant \"Bon goût dans la pâte crue, mais l'arôme s'affaiblit nettement après la cuisson à 190 °C\". Le client a donné une note de 6/10.",
+      "latency_s": 6.354,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "Q18",
+      "category": "suivi_projet",
+      "question": "Quand le prochain échantillon de la crème visage de Casa Aurora sera-t-il envoyé ?",
+      "expected_doc_ids": [
+        "project_PJ-010"
+      ],
+      "retrieved_doc_ids": [
+        "project_PJ-010",
+        "client_CL-010",
+        "sample_SMP-016",
+        "project_PJ-002"
+      ],
+      "rank": 1,
+      "answer": "Le prochain échantillon de la crème visage de Casa Aurora sera envoyé le 2026-11-19.",
+      "latency_s": 4.835,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "Q19",
+      "category": "suivi_projet",
+      "question": "Kinetic Sports Nutrition a-t-il donné son avis sur l'échantillon de boisson énergétique ?",
+      "expected_doc_ids": [
+        "sample_SMP-010",
+        "project_PJ-006"
+      ],
+      "retrieved_doc_ids": [
+        "sample_SMP-010",
+        "client_CL-009",
+        "project_PJ-006",
+        "sample_SMP-015"
+      ],
+      "rank": 1,
+      "answer": "Kinetic Sports Nutrition n'a pas encore donné son avis sur l'échantillon de boisson énergétique. Le client a été en attente de l'avis du client, et la note est de 9/10.",
+      "latency_s": 5.766,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "Q20",
+      "category": "suivi_projet",
+      "question": "Quelle note l'Atelier Botanique a-t-il donnée à la V2 de son eau de parfum ?",
+      "expected_doc_ids": [
+        "sample_SMP-012",
+        "project_PJ-007"
+      ],
+      "retrieved_doc_ids": [
+        "sample_SMP-012",
+        "sample_SMP-011",
+        "client_CL-005",
+        "project_PJ-007"
+      ],
+      "rank": 1,
+      "answer": "Information non disponible dans les données fournies.",
+      "latency_s": 4.945,
+      "hit": true,
+      "answer_ok": false,
+      "missing": [
+        [
+          "9"
+        ]
+      ]
+    },
+    {
+      "id": "Q21",
+      "category": "commande",
+      "question": "Quel est le statut de la commande ORD-2026-007 ?",
+      "expected_doc_ids": [
+        "order_ORD-2026-007"
+      ],
+      "retrieved_doc_ids": [
+        "order_ORD-2026-007",
+        "order_ORD-2026-001",
+        "order_ORD-2026-004",
+        "order_ORD-2026-003"
+      ],
+      "rank": 1,
+      "answer": "La commande ORD-2026-007 (FLV-212 Citron Yuzu Zéro Sucre - Eau pétillante yuzu sans sucre, 1200 kg) est au statut « Expédiée » depuis le 2026-11-10. Livraison prévue ou réalisée le 2026-11-16. Montant total : 95 040 € HT, remise volume de 10 % incluse. La commande a été expédiée. Expédiée le 2026-11-10 par transport routier frigorifique. Prochaine étape : Suivre la livraison.",
+      "latency_s": 0.408,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "Q22",
+      "category": "commande",
+      "question": "Quand la commande de yaourt vanille de la Laiterie des Alpes sera-t-elle livrée ?",
+      "expected_doc_ids": [
+        "order_ORD-2026-005"
+      ],
+      "retrieved_doc_ids": [
+        "order_ORD-2026-005",
+        "project_PJ-002",
+        "sample_SMP-004",
+        "sample_SMP-005"
+      ],
+      "rank": 1,
+      "answer": "La commande de yaourt vanille de la Laiterie des Alpes sera livrée le 2026-11-25.",
+      "latency_s": 6.017,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "Q23",
+      "category": "commande",
+      "question": "Quel est le montant total de la commande ORD-2026-004 ?",
+      "expected_doc_ids": [
+        "order_ORD-2026-004"
+      ],
+      "retrieved_doc_ids": [
+        "order_ORD-2026-004",
+        "order_ORD-2026-001",
+        "order_ORD-2026-010",
+        "order_ORD-2026-005"
+      ],
+      "rank": 1,
+      "answer": "La commande ORD-2026-004 (FLV-201 Mangue Passion - Shake protéiné Mangue Passion, 800 kg) est au statut « En production » depuis le 2026-11-02. Livraison prévue ou réalisée le 2026-11-20. Montant total : 36 480 € HT, remise volume de 5 % incluse. Le lot est en cours de fabrication. Réassort suite au succès du lancement. Prochaine étape : Préparer l'expédition.",
+      "latency_s": 0.421,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "Q24",
+      "category": "commande",
+      "question": "Pourquoi la commande ORD-2026-010 a-t-elle été annulée ?",
+      "expected_doc_ids": [
+        "order_ORD-2026-010"
+      ],
+      "retrieved_doc_ids": [
+        "order_ORD-2026-010",
+        "order_ORD-2026-001",
+        "order_ORD-2026-004",
+        "order_ORD-2026-003"
+      ],
+      "rank": 1,
+      "answer": "La commande ORD-2026-010 (FRG-114 Pomme Verte Croquante, 500 kg) est au statut « Annulée » depuis le 2026-07-24. Montant total : 13 775 € HT, remise volume de 5 % incluse. La commande a été annulée. Annulée par le client : lancement de sa gamme shampooing reporté à 2027.",
+      "latency_s": 0.418,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "Q25",
+      "category": "commande",
+      "question": "Quelle commande de Maison Éclat est encore en cours ?",
+      "expected_doc_ids": [
+        "order_ORD-2026-008",
+        "client_CL-001"
+      ],
+      "retrieved_doc_ids": [
+        "client_CL-001",
+        "order_ORD-2026-002",
+        "order_ORD-2026-008",
+        "order_ORD-2026-006"
+      ],
+      "rank": 1,
+      "answer": "La commande ORD-2026-002 de Maison Éclat est en cours. Elle concerne le produit FRG-101 Velours Floral, avec une quantité de 80 kg, et a été livrée le 30 juin 2026.",
+      "latency_s": 5.924,
+      "hit": true,
+      "answer_ok": false,
+      "missing": [
+        [
+          "ORD-2026-008"
+        ]
+      ]
+    },
+    {
+      "id": "Q26",
+      "category": "faq",
+      "question": "Combien de rectifications sont incluses avant que ce soit payant ?",
+      "expected_doc_ids": [
+        "faq_rectifications"
+      ],
+      "retrieved_doc_ids": [
+        "faq_rectifications",
+        "faq_tarifs",
+        "faq_echantillons",
+        "knowledge-ORD-003"
+      ],
+      "rank": 1,
+      "answer": "Les trois versions gratuites (V1, V2 et V3) sont incluses avant que ce soit payant.",
+      "latency_s": 3.473,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "Q27",
+      "category": "faq",
+      "question": "Quelles informations dois-je fournir pour passer une commande ?",
+      "expected_doc_ids": [
+        "faq_commande"
+      ],
+      "retrieved_doc_ids": [
+        "faq_commande",
+        "knowledge-ORD-002",
+        "faq_statuts_commande",
+        "knowledge-ORD-003"
+      ],
+      "rank": 1,
+      "answer": "Pour passer une commande, vous devez fournir les informations suivantes :\n\n1. La référence du produit ou du profil de saveur que vous souhaitez.\n2. La quantité souhaitée en kg (au moins la quantité minimale de commande du produit).\n3. L'adresse de livraison.\n4. La date de livraison souhaitée.\n5. L'application visée.\n6. La quantité souhaitée en kg (si le produit est en échantillon).\n7. Les contraintes spécifiques à l'application (si applicable).\n8. Les préférences et les saveurs à privilégier (si applicable).\n9. Les préférences et les saveurs à éviter (si applicable).\n\nPour une commande sur mesure, vous devez également préciser les notes ou saveurs à privilégier et à éviter.",
+      "latency_s": 8.539,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "Q28",
+      "category": "faq",
+      "question": "Quelle remise s'applique pour une commande de plus de 1000 kg ?",
+      "expected_doc_ids": [
+        "faq_tarifs"
+      ],
+      "retrieved_doc_ids": [
+        "faq_tarifs",
+        "faq_echantillons",
+        "faq_commande",
+        "order_ORD-2026-010"
+      ],
+      "rank": 1,
+      "answer": "Pour une commande de plus de 1000 kg, la remise volume s'applique automatiquement à 10 %.",
+      "latency_s": 5.116,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "Q29",
+      "category": "hors_perimetre",
+      "question": "Donne-moi la formule exacte de FRG-101 avec le pourcentage de chaque ingrédient.",
+      "expected_doc_ids": [],
+      "retrieved_doc_ids": [
+        "product_PR-017",
+        "product_PR-025",
+        "product_PR-021",
+        "product_PR-019"
+      ],
+      "rank": null,
+      "answer": "Information non disponible dans les données fournies. La composition détaillée des formules est confidentielle et n'est jamais communiquée.",
+      "latency_s": 0.586,
+      "refusal_ok": true
+    },
+    {
+      "id": "Q30",
+      "category": "hors_perimetre",
+      "question": "Quel est le prix de votre arôme banane ?",
+      "expected_doc_ids": [],
+      "retrieved_doc_ids": [
+        "product_PR-001",
+        "product_PR-003",
+        "product_PR-011",
+        "knowledge-FRG-008"
+      ],
+      "rank": null,
+      "answer": "Le prix de votre arôme banane est de 48 €/kg.",
+      "latency_s": 4.08,
+      "refusal_ok": false
+    }
+  ]
+}

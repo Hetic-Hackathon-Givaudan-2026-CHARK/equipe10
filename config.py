@@ -67,6 +67,10 @@ TOP_K = int(os.getenv("TOP_K", "4"))
 # question. RERANK=0 pour le désactiver et comparer.
 RERANK = os.getenv("RERANK", "1") != "0"
 
+# Réponses directes depuis les données structurées (direct_answers.py) pour les
+# questions citant une référence ; DIRECT_ANSWERS=0 pour tout faire passer par le LLM.
+DIRECT_ANSWERS = os.getenv("DIRECT_ANSWERS", "1") != "0"
+
 # Origines web autorisées à appeler l'API (CORS), séparées par des virgules.
 CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "*").split(",") if o.strip()]
 # -------------------------------------------------------------------
