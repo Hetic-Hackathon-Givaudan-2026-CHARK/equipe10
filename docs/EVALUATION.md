@@ -144,7 +144,10 @@ réponses du modèle dans `results/eval_*.json`. Mesures sur processeur (GitHub 
 - **LLM** : avec la V2.1, `qwen2.5:1.5b` atteint 82 % mais invente une formule et un prix sur
   les deux questions pièges ; `qwen2.5:3b` atteint **96,4 %** (27/28) avec 100 % de refus
   corrects, et 7/9 sur les cas inédits. **Retenu : `qwen2.5:3b`.**
-- **Seul critère non atteint : la latence** (32 s sur processeur). Le modèle doit tourner sur
+- **V2.2** : réponses directes depuis les données structurées pour les questions citant une
+  commande ou un produit, refus d'office des demandes de formule. Avec `qwen2.5:3b` : même
+  exactitude (27/28, 2/2 refus) et latence 32 s → 22 s. **Version publiée.**
+- **Seul critère non atteint : la latence** (22 s sur processeur). Le modèle doit tourner sur
   GPU ; le notebook Colab mesure la latence sur GPU T4 (`v21_qwen3_llm3b_gpu`).
 
 ## Limites du protocole

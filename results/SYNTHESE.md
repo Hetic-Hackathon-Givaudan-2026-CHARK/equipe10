@@ -1,6 +1,6 @@
 # Synthèse des évaluations
 
-Générée par `python report.py` le 2026-11-12 21:40 à partir de 12 rapport(s). Protocole et seuils : [docs/EVALUATION.md](../docs/EVALUATION.md).
+Générée par `python report.py` le 2026-11-12 22:58 à partir de 16 rapport(s). Protocole et seuils : [docs/EVALUATION.md](../docs/EVALUATION.md).
 
 | Configuration | Cas | Embeddings | LLM | Reclassement | Bon document dans le top 4 | MRR | Réponses exactes | Refus corrects | Latence moy. | Verdict |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -12,6 +12,10 @@ Générée par `python report.py` le 2026-11-12 21:40 à partir de 12 rapport(s)
 | `v21_qwen3_llm1.5b_inedits` | 10 | qwen3-embedding:4b | qwen2.5:1.5b | oui | 9/9 (100,0 %) ✅ | 0,944 ✅ | 7/9 (77,8 %) ❌ | 100,0 % ✅ | 17.02 s | non validé |
 | `v21_qwen3_llm3b` | 30 | qwen3-embedding:4b | qwen2.5:3b | oui | 28/28 (100,0 %) ✅ | 0,964 ✅ | 27/28 (96,4 %) ✅ | 100,0 % ✅ | 32.14 s | non validé |
 | `v21_qwen3_llm3b_inedits` | 10 | qwen3-embedding:4b | qwen2.5:3b | oui | 9/9 (100,0 %) ✅ | 0,944 ✅ | 7/9 (77,8 %) ❌ | 100,0 % ✅ | 31.96 s | non validé |
+| `v22_qwen3_llm1.5b` | 30 | qwen3-embedding:4b | qwen2.5:1.5b | oui | 28/28 (100,0 %) ✅ | 0,964 ✅ | 25/28 (89,3 %) ✅ | 50,0 % ❌ | 5.24 s | non validé |
+| `v22_qwen3_llm1.5b_inedits` | 10 | qwen3-embedding:4b | qwen2.5:1.5b | oui | 9/9 (100,0 %) ✅ | 0,944 ✅ | 8/9 (88,9 %) ✅ | 0,0 % ❌ | 5.34 s | non validé |
+| `v22_qwen3_llm3b` | 30 | qwen3-embedding:4b | qwen2.5:3b | oui | 28/28 (100,0 %) ✅ | 0,964 ✅ | 27/28 (96,4 %) ✅ | 100,0 % ✅ | 21.57 s | non validé |
+| `v22_qwen3_llm3b_inedits` | 10 | qwen3-embedding:4b | qwen2.5:3b | oui | 9/9 (100,0 %) ✅ | 0,944 ✅ | 7/9 (77,8 %) ❌ | 100,0 % ✅ | 21.65 s | non validé |
 | `v2_nomic` | 30 | nomic-embed-text | qwen2.5:1.5b | oui | 27/28 (96,4 %) ✅ | 0,929 ✅ | 16/28 (57,1 %) ❌ | 100,0 % ✅ | 15.81 s | non validé |
 | `v2_nomic_inedits` | 10 | nomic-embed-text | qwen2.5:1.5b | oui | 9/9 (100,0 %) ✅ | 0,944 ✅ | 5/9 (55,6 %) ❌ | 100,0 % ✅ | 16.10 s | non validé |
 | `v2_qwen3` | 30 | qwen3-embedding:4b | qwen2.5:1.5b | oui | 28/28 (100,0 %) ✅ | 0,964 ✅ | 15/28 (53,6 %) ❌ | 0,0 % ❌ | 16.78 s | non validé |
