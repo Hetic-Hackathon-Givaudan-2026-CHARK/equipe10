@@ -57,7 +57,7 @@ Forme de la réponse (le texte de `answer` est illustratif : il dépend du modè
   "question": "Quel est le statut de la commande ORD-2026-007 ?",
   "domain": "all",
   "answer": "La commande ORD-2026-007 de Northstar Beverages est expédiée depuis le 2026-11-10 ; livraison prévue le 2026-11-16.",
-  "model": "qwen2.5:1.5b",
+  "model": "qwen2.5:3b",
   "sources": [ { "...": "voir POST /search" } ]
 }
 ```

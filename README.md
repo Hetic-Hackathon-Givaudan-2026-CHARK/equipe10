@@ -12,7 +12,7 @@ livraison. L'assistant IA répond uniquement à partir de données **100 % ficti
 |---|---|
 | 1. Données nettoyées et préparées | [`data/raw/`](data/raw) (tables CSV) et [`generate_dataset.py`](generate_dataset.py) (génération + contrôles de cohérence) |
 | 2. Pipeline de traitement fonctionnel | [`ingest.py`](ingest.py) → ChromaDB → [`rerank.py`](rerank.py) → [`api.py`](api.py) ; démo complète dans [`notebooks/`](notebooks) |
-| 3. Modèle V2 publié | V2 = branche `main` (V1 de mardi : tag [`v1`](https://github.com/Hetic-Hackathon-Givaudan-2026-CHARK/equipe10/releases/tag/v1)) ; embeddings `qwen3-embedding:4b` + LLM `qwen2.5:1.5b`, choix justifié par [`results/`](results) et [`docs/etude_benchmark_embeddings.pdf`](docs/etude_benchmark_embeddings.pdf) |
+| 3. Modèle V2 publié | V2 = branche `main` (V1 de mardi : tag [`v1`](https://github.com/Hetic-Hackathon-Givaudan-2026-CHARK/equipe10/releases/tag/v1)) ; embeddings **`qwen3-embedding:4b`** + LLM **`qwen2.5:3b`**, choix justifié par la section [Résultats](#résultats), [`results/SYNTHESE.md`](results/SYNTHESE.md) et [`docs/etude_benchmark_embeddings.pdf`](docs/etude_benchmark_embeddings.pdf) |
 | 4. Métriques et protocole sur 30 cas | section [Résultats](#résultats) ci-dessous, protocole [`docs/EVALUATION.md`](docs/EVALUATION.md), cas [`data/eval/`](data/eval), rapports [`results/`](results), tests [`tests/`](tests) |
 | 5. API renvoyant les résultats réels | [`api.py`](api.py) ; contrat pour les interfaces [`docs/API.md`](docs/API.md) et [`docs/openapi.json`](docs/openapi.json) ; Swagger (`/docs`) exposé via ngrok depuis le notebook |
 
@@ -20,42 +20,57 @@ livraison. L'assistant IA répond uniquement à partir de données **100 % ficti
 
 ## Résultats
 
-Mesurés sur les **30 cas de référence** et, pour vérifier que le modèle généralise, sur
-**10 cas inédits** écrits avant toute mesure et jamais utilisés pour régler le système.
+Mesurés sur les **30 cas de référence** et sur **10 cas inédits** (écrits avant toute mesure,
+jamais utilisés pour régler le système). Évaluation lancée par GitHub Actions avec les vrais
+modèles Ollama, **sur processeur (sans GPU)** ; tableau complet : [`results/SYNTHESE.md`](results/SYNTHESE.md).
 
-| Configuration | Cas | Hit@4 | MRR | Exactitude | Refus | Latence | Rapport |
-|---|---|---|---|---|---|---|---|
-| *Seuil de validation* | | *≥ 90 %* | *≥ 0,75* | *≥ 80 %* | *100 %* | *≤ 10 s* | |
-| Baseline TF-IDF (sans IA) | 30 | 92,9 % | 0,690 ❌ | — | — | 1 ms | [rapport](results/eval_baseline_tfidf.md) |
-| Baseline TF-IDF **+ reclassement** | 30 | **96,4 %** | **0,869** ✅ | — | — | 1 ms | [rapport](results/eval_baseline_tfidf_rerank.md) |
-| Baseline TF-IDF (sans IA) | 10 inédits | 100 % | 0,759 | — | — | 1 ms | [rapport](results/eval_baseline_tfidf_inedits.md) |
-| Baseline TF-IDF **+ reclassement** | 10 inédits | **100 %** | **1,000** | — | — | 1 ms | [rapport](results/eval_baseline_tfidf_rerank_inedits.md) |
-| V2 — `nomic-embed-text` + `qwen2.5:1.5b` + reclassement | 30 | *à mesurer* | *à mesurer* | *à mesurer* | *à mesurer* | *à mesurer* | `results/eval_v2_nomic.md` |
-| V2 — `qwen3-embedding:4b` + `qwen2.5:1.5b` + reclassement | 30 | *à mesurer* | *à mesurer* | *à mesurer* | *à mesurer* | *à mesurer* | `results/eval_v2_qwen3.md` |
+### Modèle retenu pour la V2 : `qwen3-embedding:4b` + `qwen2.5:3b` (version V2.1)
 
-« — » : non mesuré, la baseline ne fait que la recherche (pas de LLM pour rédiger ou refuser).
+| Critère (30 cas) | Seuil | Résultat | |
+|---|---|---|---|
+| Bon document dans le top 4 | ≥ 90 % | **28/28 (100 %)** | ✅ |
+| MRR (bon document en tête) | ≥ 0,75 | **0,964** | ✅ |
+| Réponses exactes | ≥ 80 % | **27/28 (96,4 %)** | ✅ |
+| Refus corrects (questions pièges) | 100 % | **2/2 (100 %)** | ✅ |
+| Latence moyenne | ≤ 10 s | 32 s sur processeur | ❌ → GPU nécessaire |
 
-**Ce que montrent les mesures déjà faites :**
+Sur les **10 cas inédits** : bon document trouvé 9/9, MRR 0,944, réponses exactes 7/9 (77,8 %),
+refus 1/1.
 
-- **Une recherche par mots-clés trouve souvent le bon document, mais pas en premier**
-  (MRR 0,690) : elle confond un projet avec le produit qu'il utilise, ou une commande avec une
-  autre du même client. Elle échoue sur la question en anglais (Q08 : « sunscreen » ≠
-  « crème solaire »).
-- **Le reclassement ([`rerank.py`](rerank.py)) corrige la plupart de ces confusions** avec deux
-  règles explicables : une référence citée (`ORD-2026-007`, `FRG-108`…) fait passer son document
-  devant, et le type de question (« où en est », « je cherche », « retour sur l'échantillon »…)
-  favorise le bon type de document. 10 cas sur 30 montent, aucun ne descend. Le gain se confirme
-  sur les 10 cas inédits (MRR 0,759 → 1,000) : ce n'est pas un réglage sur mesure. Il est actif
-  par défaut dans l'API (`RERANK=0` pour le couper).
-- Les modèles d'embeddings doivent battre la baseline reclassée, notamment sur les questions
-  en anglais ou formulées sans les mots du document : c'est ce que mesurent les lignes V2.
+### Comment on y est arrivé
 
-Les lignes V2 se remplissent en lançant le notebook (Ollama nécessaire), qui produit
-`results.zip` à déposer dans [`results/`](results). Le tableau complet de toutes les
-configurations est généré automatiquement dans [`results/SYNTHESE.md`](results/SYNTHESE.md) (`python report.py`).
+| Configuration | Bon document (top 4) | MRR | Réponses exactes | Refus corrects | Latence (CPU) |
+|---|---|---|---|---|---|
+| Baseline sans IA (TF-IDF) | 26/28 | 0,690 | — | — | 1 ms |
+| Baseline sans IA + reclassement | 27/28 | 0,869 | — | — | 1 ms |
+| V2 — `nomic-embed-text` + `qwen2.5:1.5b` | 27/28 | 0,929 | 16/28 (57 %) | 2/2 | 16 s |
+| V2 — `qwen3-embedding:4b` + `qwen2.5:1.5b` | **28/28** | **0,964** | 15/28 (54 %) | 0/2 | 17 s |
+| V2.1 — `qwen3-embedding:4b` + `qwen2.5:1.5b` | 28/28 | 0,964 | 23/28 (82 %) | 0/2 | 18 s |
+| **V2.1 — `qwen3-embedding:4b` + `qwen2.5:3b`** | **28/28** | **0,964** | **27/28 (96 %)** | **2/2** | 32 s |
 
-**Tests automatiques :** `python -m pytest` — 73 tests, relancés par GitHub Actions à chaque modification (badge en haut de page) (données, cas d'évaluation, ingestion,
-reclassement, API complète, contrat OpenAPI, synthèse) qui tournent sans Ollama en quelques secondes.
+1. **Recherche** : `qwen3-embedding:4b` trouve le bon document dans 100 % des cas et bat la
+   baseline sans IA (MRR 0,964 contre 0,690) ; le reclassement ([`rerank.py`](rerank.py)) aide
+   tous les modèles. C'est le modèle d'embeddings retenu.
+2. **Analyse des erreurs de la V2** : la recherche était bonne, la rédaction non. Sur 13 échecs,
+   5 réponses justes citaient l'identifiant interne `PR-xxx` au lieu de la référence commerciale,
+   6 étaient des refus à tort alors que la réponse était dans le contexte, 2 étaient de vraies
+   erreurs (dont un prix inventé).
+3. **V2.1** : fiches produit sans identifiant interne, prompt exigeant la référence commerciale
+   et ne refusant que si rien ne répond, interdiction explicite d'inventer. Les 30 cas n'ont
+   pas été modifiés.
+4. **Choix du LLM** : `qwen2.5:1.5b` monte à 82 % mais **invente une formule et un prix** sur les
+   questions pièges (0/2 refus), ce qui est inacceptable pour des données Givaudan ;
+   `qwen2.5:3b` atteint 96 % et refuse correctement. **On retient `qwen2.5:3b`.**
+5. **Latence** : 32 s par réponse sur les serveurs GitHub sans GPU. Le modèle doit tourner sur
+   GPU (Colab T4 dans le notebook de démo) pour respecter le seuil de 10 s.
+
+**Limites** : l'exactitude est mesurée par mots-clés (une réponse juste formulée autrement peut
+être comptée fausse, ex. Q25) ; 30 + 10 cas permettent de comparer des versions, pas de garantir
+un taux en production ; les données sont fictives.
+
+**Tests automatiques :** `python -m pytest` — tests relancés par GitHub Actions à chaque
+modification (badge en haut de page). Évaluation complète relançable depuis l'onglet Actions
+(« Évaluation des modèles » → *Run workflow*).
 
 ## Historique des versions
 
@@ -63,6 +78,7 @@ reclassement, API complète, contrat OpenAPI, synthèse) qui tournent sans Ollam
 |---|---|---|---|
 | **V1** | mardi 10 novembre | Premier prototype démontré : dataset de 29 documents (clients, produits, matières premières, commandes, échantillons), ingestion ChromaDB, API FastAPI (`/health`, `/search`, `/ask`, `/demo/ping`) exposée via ngrok, `qwen3-embedding:4b` + `qwen2.5:1.5b`, étude comparative des modèles d'embeddings | tag [`v1`](https://github.com/Hetic-Hackathon-Givaudan-2026-CHARK/equipe10/releases/tag/v1), captures de la démo dans [`docs/captures-demo-v1/`](docs/captures-demo-v1) |
 | **V2** | jeudi 12 novembre | Dataset complet (103 documents : catalogue de 30 produits, projets de création, échantillons V1/V2/V3, commandes, FAQ) + base de connaissances du chatbot (20 fiches) ; ingestion corrigée ; reclassement des résultats ; filtre par domaine ; suivi des commandes `GET /orders/{id}` ; évaluation sur 30 cas de référence + 10 inédits ; 73 tests automatiques ; API ouverte aux interfaces web (CORS) et contrat documenté | branche `main` |
+| **V2.1** | jeudi 12 novembre (soir) | Corrections issues de l'analyse des erreurs de la V2 (fiches produit, prompt), choix du LLM `qwen2.5:3b` sur mesures : 96 % de réponses exactes, 100 % de refus corrects | branche `main` |
 
 **Ce que la V2 corrige par rapport à la V1** (visible sur les captures de la démo V1) : chaque
 fiche du dataset était mal découpée — toutes les sources avaient la section « Introduction »
@@ -97,7 +113,7 @@ ou `shared`) utilisé par le filtre `domain` de l'API.
 
 ```bash
 pip install -r requirements.txt
-ollama pull nomic-embed-text && ollama pull qwen2.5:1.5b
+ollama pull qwen3-embedding:4b && ollama pull qwen2.5:3b
 
 python generate_dataset.py
 python clean.py && python ingest.py

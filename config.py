@@ -19,7 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 
 # Modèle qui rédige la réponse RAG.
-LLM_MODEL = os.getenv("LLM_MODEL", "qwen2.5:1.5b")
+LLM_MODEL = os.getenv("LLM_MODEL", "qwen2.5:3b")
 
 # Longueur maximale d'une réponse (en tokens) : limite la latence sur CPU.
 MAX_ANSWER_TOKENS = int(os.getenv("MAX_ANSWER_TOKENS", "300"))
@@ -28,7 +28,7 @@ MAX_ANSWER_TOKENS = int(os.getenv("MAX_ANSWER_TOKENS", "300"))
 # - nomic-embed-text
 # - qwen3-embedding:0.6b
 # - qwen3-embedding:4b
-EMBED_MODEL = os.getenv("EMBED_MODEL", "nomic-embed-text")
+EMBED_MODEL = os.getenv("EMBED_MODEL", "qwen3-embedding:4b")
 
 
 # -------------------------------------------------------------------

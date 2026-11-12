@@ -131,6 +131,22 @@ Les rapports sont écrits dans `results/eval_v2_nomic.md` et `results/eval_v2_qw
 (+ JSON détaillé avec les réponses du modèle). `--retrieval-only` évalue uniquement la
 recherche, sans LLM.
 
+## Résultats et décision (12 novembre)
+
+Résultats complets : [`results/SYNTHESE.md`](../results/SYNTHESE.md) ; détail par cas avec les
+réponses du modèle dans `results/eval_*.json`. Mesures sur processeur (GitHub Actions, sans GPU).
+
+- **Modèle d'embeddings** : `qwen3-embedding:4b` (bon document 28/28, MRR 0,964), meilleur que
+  `nomic-embed-text` (27/28, 0,929) et que la baseline sans IA (MRR 0,690 ; 0,869 reclassée).
+- **V2 → V2.1** : l'analyse des 13 échecs de la V2 (54 % de réponses exactes) a conduit à
+  corriger les fiches produit (référence commerciale au lieu de l'identifiant interne) et le
+  prompt (répondre dès qu'un extrait répond, ne jamais inventer). Les 30 cas sont inchangés.
+- **LLM** : avec la V2.1, `qwen2.5:1.5b` atteint 82 % mais invente une formule et un prix sur
+  les deux questions pièges ; `qwen2.5:3b` atteint **96,4 %** (27/28) avec 100 % de refus
+  corrects, et 7/9 sur les cas inédits. **Retenu : `qwen2.5:3b`.**
+- **Seul critère non atteint : la latence** (32 s sur processeur). Le modèle doit tourner sur
+  GPU ; le notebook Colab mesure la latence sur GPU T4 (`v21_qwen3_llm3b_gpu`).
+
 ## Limites du protocole
 
 - L'exactitude est mesurée par présence de mots-clés : une réponse juste mais formulée
