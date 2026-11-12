@@ -2,11 +2,13 @@ name: Évaluation des modèles
 
 # Lance l'évaluation complète avec les vrais modèles (Ollama) sur les serveurs
 # GitHub, puis ajoute les rapports dans results/.
-# Déclenchement : bouton « Run workflow » dans l'onglet Actions, ou modification
-# de .github/eval-trigger.
+# Déclenchement : bouton « Run workflow » dans l'onglet Actions (choisir la
+# branche), ou modification de .github/eval-trigger sur main.
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     paths:
       - .github/eval-trigger
 
