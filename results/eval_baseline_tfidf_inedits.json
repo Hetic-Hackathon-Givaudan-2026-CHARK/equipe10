@@ -6,11 +6,14 @@
     "top_k": 4,
     "rerank": false,
     "retrieval_only": true,
-    "date": "2026-11-12 20:45",
+    "date": "2026-11-12 20:56",
     "indexed_documents": 123
   },
   "summary": {
     "cases": 10,
+    "answerable_cases": 9,
+    "hits": 9,
+    "errors": 0,
     "hit_at_k": 1.0,
     "mrr": 0.7592592592592592,
     "latency_mean_s": 0.001,
@@ -65,7 +68,7 @@
       ],
       "rank": 2,
       "answer": "",
-      "latency_s": 0.001,
+      "latency_s": 0.0009,
       "hit": true
     },
     {
@@ -83,7 +86,7 @@
       ],
       "rank": 1,
       "answer": "",
-      "latency_s": 0.0008,
+      "latency_s": 0.0007,
       "hit": true
     },
     {
@@ -119,7 +122,7 @@
       ],
       "rank": 1,
       "answer": "",
-      "latency_s": 0.0007,
+      "latency_s": 0.0006,
       "hit": true
     },
     {
@@ -151,8 +154,8 @@
       "retrieved_doc_ids": [
         "project_PJ-008",
         "order_ORD-2026-006",
-        "order_ORD-2026-007",
-        "client_CL-003"
+        "client_CL-003",
+        "order_ORD-2026-007"
       ],
       "rank": 2,
       "answer": "",
@@ -228,7 +231,7 @@
       ],
       "rank": null,
       "answer": "",
-      "latency_s": 0.0006,
+      "latency_s": 0.0005,
       "refusal_ok": null
     }
   ]

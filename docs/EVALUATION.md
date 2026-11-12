@@ -119,7 +119,13 @@ export EMBED_MODEL=qwen3-embedding:4b
 python clean.py && python ingest.py
 python evaluate.py --label v2_qwen3
 python evaluate.py --label v2_qwen3_inedits --cases data/eval/unseen_cases.json
+
+# Tableau comparatif de toutes les configurations -> results/SYNTHESE.md
+python report.py
 ```
+
+Si un appel au modèle échoue (Ollama arrêté, délai dépassé…), le cas est noté en erreur dans
+le rapport et l'évaluation continue avec les cas suivants.
 
 Les rapports sont écrits dans `results/eval_v2_nomic.md` et `results/eval_v2_qwen3.md`
 (+ JSON détaillé avec les réponses du modèle). `--retrieval-only` évalue uniquement la

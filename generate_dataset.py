@@ -468,6 +468,14 @@ samples = rows(
 
 ORDER_STATUSES = ["Confirmée", "En préparation", "En production", "Expédiée", "Livrée", "Annulée"]
 
+# Date du dernier changement de statut de chaque commande (suivi en temps réel).
+ORDER_STATUS_DATES = {
+    "ORD-2026-001": "2026-09-15", "ORD-2026-002": "2026-06-30", "ORD-2026-003": "2026-08-29",
+    "ORD-2026-004": "2026-11-02", "ORD-2026-005": "2026-11-03", "ORD-2026-006": "2026-11-05",
+    "ORD-2026-007": "2026-11-10", "ORD-2026-008": "2026-11-03", "ORD-2026-009": "2026-09-22",
+    "ORD-2026-010": "2026-07-24",
+}
+
 orders = rows(
     ["order_id", "client_id", "project_id", "product_id", "order_date",
      "quantity_kg", "status", "delivery_date", "comment"],
@@ -632,6 +640,14 @@ def validate() -> None:
             errors.append(f"{o['order_id']} : statut inconnu")
         if o["status"] != "Annulée" and o["delivery_date"] < o["order_date"]:
             errors.append(f"{o['order_id']} : livraison avant la commande")
+        status_date = ORDER_STATUS_DATES.get(o["order_id"])
+        if status_date is None or not (o["order_date"] <= status_date <= REFERENCE_DATE):
+            errors.append(f"{o['order_id']} : date de statut absente ou incohérente")
+        if o["status"] == "Livrée" and status_date != o["delivery_date"]:
+            errors.append(f"{o['order_id']} : livrée à une autre date que la livraison")
+        if o["status"] in {"Confirmée", "En préparation", "En production", "Expédiée"} \
+                and o["delivery_date"] <= REFERENCE_DATE:
+            errors.append(f"{o['order_id']} : en cours mais livraison prévue dans le passé")
         if o["project_id"]:
             pj = project_by_id.get(o["project_id"])
             if pj is None or pj["client_id"] != o["client_id"] or pj["base_product_id"] != o["product_id"]:
@@ -754,7 +770,8 @@ def build_documents() -> list[dict]:
         add(f"order_{o['order_id']}",
             f"COMMANDE | {o['order_id']} de {client['company_name']} ({o['client_id']}), {origin}. "
             f"Produit : {product['reference']} {product['name']}. Quantité : {fmt_number(o['quantity_kg'])} kg. "
-            f"Date de commande : {o['order_date']}. Statut : {o['status']}. {delivery} "
+            f"Date de commande : {o['order_date']}. Statut : {o['status']} "
+            f"(mis à jour le {ORDER_STATUS_DATES[o['order_id']]}). {delivery} "
             f"Prix unitaire : {product['price_eur_kg']} €/kg. Remise volume : {discount} %. "
             f"Montant total : {fmt_number(net)} € HT (brut {fmt_number(gross)} €). "
             f"Commentaire : {o['comment']}",
@@ -816,7 +833,7 @@ def order_tracking_row(order: dict) -> dict:
         owner_team = "Sales"
     else:
         owner_team = "Operations fragrance" if domain == "fragrance" else "Operations aromas"
-    updated = order["delivery_date"] if order["status"] == "Livrée" else order["order_date"]
+    updated = ORDER_STATUS_DATES[order["order_id"]]
     return {
         "order_id": order["order_id"],
         "customer_reference": order["client_id"],

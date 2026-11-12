@@ -62,13 +62,22 @@ def contains(answer: str, alternatives: list[str]) -> bool:
 def evaluate_case(case: dict, top_k: int, retrieval_only: bool) -> dict:
     import api  # import tardif : le module charge ChromaDB et Ollama
 
+    error = None
     start = time.perf_counter()
-    if retrieval_only:
-        sources = api.retrieve(case["question"], top_k)
+    try:
+        if retrieval_only:
+            sources = api.retrieve(case["question"], top_k)
+            answer = ""
+        else:
+            response = api.ask(api.AskRequest(question=case["question"], top_k=top_k))
+            sources, answer = response.sources, response.answer
+    except Exception as exc:  # un cas en erreur ne doit pas arrêter toute l'évaluation
+        error = getattr(exc, "detail", None) or repr(exc)
         answer = ""
-    else:
-        response = api.ask(api.AskRequest(question=case["question"], top_k=top_k))
-        sources, answer = response.sources, response.answer
+        try:
+            sources = api.retrieve(case["question"], top_k)
+        except Exception:
+            sources = []
     latency = time.perf_counter() - start
 
     retrieved = [s.doc_id for s in sources]
@@ -85,6 +94,8 @@ def evaluate_case(case: dict, top_k: int, retrieval_only: bool) -> dict:
         "answer": answer,
         "latency_s": round(latency, 3),
     }
+    if error:
+        result["error"] = str(error)
 
     if case["expect_refusal"]:
         result["refusal_ok"] = None if retrieval_only else contains(answer, REFUSAL_MARKERS)
@@ -104,13 +115,17 @@ def summarize(results: list[dict], retrieval_only: bool) -> dict:
 
     summary = {
         "cases": len(results),
+        "answerable_cases": len(answerable),
+        "hits": sum(r["hit"] for r in answerable),
+        "errors": sum("error" in r for r in results),
         "hit_at_k": sum(r["hit"] for r in answerable) / len(answerable),
         "mrr": sum(1 / r["rank"] for r in answerable if r["rank"]) / len(answerable),
         "latency_mean_s": round(statistics.mean(latencies), 3),
         "latency_p95_s": round(latencies[max(0, int(0.95 * len(latencies)) - 1)], 3),
     }
     if not retrieval_only:
-        summary["answer_accuracy"] = sum(r["answer_ok"] for r in answerable) / len(answerable)
+        summary["answers_ok"] = sum(r["answer_ok"] for r in answerable)
+        summary["answer_accuracy"] = summary["answers_ok"] / len(answerable)
         summary["refusal_accuracy"] = (
             sum(r["refusal_ok"] for r in refusals) / len(refusals) if refusals else 1.0
         )
@@ -164,6 +179,10 @@ def write_markdown(path: Path, label: str, meta: dict, summary: dict, results: l
             f"≥ {threshold:.2f}" if metric == "mrr" else f"≥ {pct(threshold)}")
         lines.append(f"| {metric} | {shown} | {limit} | {'✅' if summary['validation'][metric] else '❌'} |")
     lines += [
+        "",
+        f"Bon document dans le top {meta['top_k']} : {summary['hits']}/{summary['answerable_cases']} questions"
+        + (f" ; réponses exactes : {summary['answers_ok']}/{summary['answerable_cases']}" if "answers_ok" in summary else "")
+        + (f" ; **{summary['errors']} cas en erreur** (voir le JSON)" if summary.get("errors") else ""),
         "",
         f"**Résultat global : {'VALIDÉ' if summary['validated'] else 'NON VALIDÉ'}**"
         + (" (recherche seule : exactitude des réponses et refus non mesurés)"

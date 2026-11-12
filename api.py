@@ -13,6 +13,7 @@ from typing import Literal
 
 import pandas as pd
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 import config
@@ -46,10 +47,21 @@ Règles impératives :
 app = FastAPI(
     title="Intelligent Ordering Platform RAG API",
     description=(
-        "API RAG de démonstration pour les parfums, les arômes destinés aux "
-        "produits laitiers, les processus de commande et le suivi de commande."
+        "API RAG de démonstration pour les fragrances et les arômes alimentaires : "
+        "catalogue, projets de création, échantillons et rectifications, commandes "
+        "et suivi. Données 100 % fictives. Contrat détaillé : docs/API.md."
     ),
     version="2.0.0",
+)
+
+# Autorise les interfaces web (React, Streamlit…) servies depuis une autre
+# origine à appeler l'API depuis le navigateur. CORS_ORIGINS="*" par défaut ;
+# mettre une liste séparée par des virgules pour restreindre.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=config.CORS_ORIGINS,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["*"],
 )
 
 
@@ -91,6 +103,13 @@ class Source(BaseModel):
             "Score de similarité : plus il est proche de 1, "
             "plus la source est pertinente."
         )
+    )
+    rank_score: float | None = Field(
+        default=None,
+        description=(
+            "Score utilisé pour ordonner les sources : similarité + bonus du "
+            "reclassement (référence citée, type de question). Absent si RERANK=0."
+        ),
     )
 
 
