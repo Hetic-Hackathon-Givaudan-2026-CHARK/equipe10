@@ -1,17 +1,24 @@
-"""Ingestion du dataset synthétique dans ChromaDB.
+"""Ingestion des données dans ChromaDB.
+
+Ce script indexe deux sources :
+1. givaudan_data.txt : dataset synthétique existant (clients, produits,
+   commandes, matières premières et échantillons).
+2. data/rag_knowledge_base_prototype.csv : base de connaissances du chatbot
+   (parfums, arômes laitiers, personnalisation, FAQ et processus de commande).
+
+Le fichier data/orders_tracking_prototype.csv n'est volontairement pas indexé :
+il est utilisé directement par l'endpoint GET /orders/{order_id}.
 
 Usage :
     python ingest.py
-    python ingest.py givaudan_data.txt
-
-Le fichier givaudan_data.txt est généré par generate_dataset.py.
 """
 
 from __future__ import annotations
 
 import re
-import sys
 from pathlib import Path
+
+import pandas as pd
 
 import config
 import rag
@@ -26,7 +33,7 @@ SECTION_RE = re.compile(
 
 
 def split_into_sections(text: str) -> tuple[str, list[tuple[str, list[str]]]]:
-    """Découpe le corpus en sections RAG."""
+    """Découpe le corpus texte existant en sections RAG."""
     paragraphs = [p.strip() for p in re.split(r"\n\s*\n", text) if p.strip()]
 
     dataset_title = ""
@@ -81,7 +88,7 @@ def chunk_paragraphs(paragraphs: list[str]) -> list[str]:
 
 
 def get_document_type(section_title: str) -> str:
-    """Identifie le type métier depuis le titre de section."""
+    """Identifie le type métier depuis le titre d'une section."""
     title = section_title.lower()
 
     if "client_" in title:
@@ -98,57 +105,135 @@ def get_document_type(section_title: str) -> str:
     return "unknown"
 
 
-def main() -> None:
-    """Charge le corpus, calcule les embeddings et alimente ChromaDB."""
-    source_path = (
-        Path(sys.argv[1])
-        if len(sys.argv) > 1
-        else config.DATASET_PATH
-    )
-
+def add_existing_dataset(
+    source_path: Path,
+    ids: list[str],
+    documents: list[str],
+    metadatas: list[dict],
+) -> None:
+    """Ajoute le corpus synthétique existant à la liste des documents."""
     if not source_path.exists():
-        raise FileNotFoundError(
-            f"Dataset introuvable : {source_path}. "
-            "Lance d'abord `python generate_dataset.py`."
-        )
+        print(f"Dataset existant ignoré : fichier absent ({source_path}).")
+        return
 
     text = source_path.read_text(encoding="utf-8")
     dataset_title, sections = split_into_sections(text)
-
-    ids: list[str] = []
-    documents: list[str] = []
-    metadatas: list[dict] = []
 
     for section_index, (section_title, paragraphs) in enumerate(sections):
         document_type = get_document_type(section_title)
 
         for chunk_index, chunk in enumerate(chunk_paragraphs(paragraphs)):
-            document_id = f"{source_path.stem}-{section_index:03d}-{chunk_index:03d}"
+            document_id = (
+                f"synthetic-{source_path.stem}-{section_index:03d}-{chunk_index:03d}"
+            )
 
             ids.append(document_id)
             documents.append(chunk)
             metadatas.append(
                 {
                     "source": source_path.name,
-                    "dataset_title": dataset_title,
+                    "dataset_title": dataset_title or source_path.name,
                     "section": section_title,
+                    "title": section_title,
                     "document_type": document_type,
+                    "record_type": document_type,
+                    # Les informations existantes restent accessibles depuis
+                    # les deux domaines lorsque l'application filtre une recherche.
+                    "domain": "shared",
+                    "category": "",
+                    "tags": "",
                     "section_index": section_index,
                     "chunk_index": chunk_index,
                 }
             )
 
-    if not documents:
-        raise ValueError("Aucun document n'a été détecté dans le dataset.")
 
-    print(f"Dataset : {dataset_title or source_path.name}")
-    print(f"Sections détectées : {len(sections)}")
+def value_as_string(value: object) -> str:
+    """Convertit une valeur CSV en texte sans renvoyer 'nan'."""
+    if pd.isna(value):
+        return ""
+    return str(value).strip()
+
+
+def add_knowledge_base(
+    source_path: Path,
+    ids: list[str],
+    documents: list[str],
+    metadatas: list[dict],
+) -> None:
+    """Ajoute le catalogue conversationnel avec ses métadonnées de domaine."""
+    if not source_path.exists():
+        raise FileNotFoundError(
+            f"Base de connaissances introuvable : {source_path}"
+        )
+
+    df = pd.read_csv(source_path, dtype=str).fillna("")
+
+    required_columns = {
+        "record_id",
+        "domain",
+        "record_type",
+        "title",
+        "content",
+    }
+    missing_columns = required_columns - set(df.columns)
+
+    if missing_columns:
+        missing = ", ".join(sorted(missing_columns))
+        raise ValueError(
+            f"Colonnes manquantes dans {source_path.name} : {missing}"
+        )
+
+    for _, row in df.iterrows():
+        record_id = value_as_string(row["record_id"])
+        content = value_as_string(row["content"])
+        domain = value_as_string(row["domain"])
+
+        if not record_id or not content or not domain:
+            continue
+
+        # ChromaDB accepte les métadonnées simples : str, int, float ou bool.
+        metadata = {
+            "source": source_path.name,
+            "dataset_title": "Givaudan conversational prototype knowledge base",
+            "section": value_as_string(row.get("title", "")),
+            "title": value_as_string(row.get("title", "")),
+            "document_type": value_as_string(row.get("record_type", "knowledge")),
+            "record_type": value_as_string(row.get("record_type", "knowledge")),
+            "domain": domain,
+            "category": value_as_string(row.get("category", "")),
+            "sub_category": value_as_string(row.get("sub_category", "")),
+            "application": value_as_string(row.get("application", "")),
+            "tags": value_as_string(row.get("tags", "")),
+        }
+
+        ids.append(f"knowledge-{record_id}")
+        documents.append(content)
+        metadatas.append(metadata)
+
+
+def main() -> None:
+    """Construit les documents, calcule les embeddings et alimente ChromaDB."""
+    ids: list[str] = []
+    documents: list[str] = []
+    metadatas: list[dict] = []
+
+    # 1. Garde le dataset synthétique déjà utilisé dans le prototype.
+    add_existing_dataset(config.DATASET_PATH, ids, documents, metadatas)
+
+    # 2. Ajoute la nouvelle base de connaissances conversationnelle.
+    add_knowledge_base(config.KNOWLEDGE_BASE_PATH, ids, documents, metadatas)
+
+    if not documents:
+        raise ValueError("Aucun document n'a été détecté pour l'indexation.")
+
     print(f"Documents à indexer : {len(documents)}")
     print(f"Modèle d'embeddings : {config.EMBED_MODEL}")
+    print(f"Base de connaissances : {config.KNOWLEDGE_BASE_PATH}")
 
-    # Le titre est inclus dans l'embedding pour améliorer la recherche.
+    # Le titre est inclus dans l'embedding afin d'améliorer la recherche.
     texts_to_embed = [
-        f"{metadata['section']}\n{document}"
+        f"{metadata['title']}\n{document}"
         for document, metadata in zip(documents, metadatas)
     ]
 

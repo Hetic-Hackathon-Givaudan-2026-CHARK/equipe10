@@ -62,3 +62,24 @@ CHUNK_OVERLAP_PARAGRAPHS = int(
 # -------------------------------------------------------------------
 
 TOP_K = int(os.getenv("TOP_K", "4"))
+# -------------------------------------------------------------------
+# Fichiers du prototype conversationnel
+# -------------------------------------------------------------------
+
+# Base de connaissances RAG : produits, suggestions, personnalisation,
+# FAQ et processus de commande.
+KNOWLEDGE_BASE_PATH = Path(
+    os.getenv(
+        "KNOWLEDGE_BASE_PATH",
+        str(BASE_DIR / "data" / "rag_knowledge_base_prototype.csv"),
+    )
+)
+
+# Données fictives de suivi de commandes. Elles ne doivent pas être
+# indexées dans ChromaDB : elles sont consultées directement par l'API.
+ORDERS_TRACKING_PATH = Path(
+    os.getenv(
+        "ORDERS_TRACKING_PATH",
+        str(BASE_DIR / "data" / "orders_tracking_prototype.csv"),
+    )
+)
