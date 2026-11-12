@@ -3,13 +3,34 @@
 ## Ce qu'on évalue
 
 Le « modèle » est le système RAG complet : dataset + découpage + modèle d'embeddings
-(recherche) + LLM (rédaction) + prompt système. On compare plusieurs configurations
-(V1, V2…) sur le **même jeu de 30 cas de référence**.
+(recherche) + LLM (rédaction) + prompt système.
 
-| Version | Embeddings | LLM |
+- **V1 (mardi 10 novembre, tag `v1`)** : premier prototype démontré, 29 documents,
+  `qwen3-embedding:4b` + `qwen2.5:1.5b`. Évaluée qualitativement à partir de la démo
+  (`docs/captures-demo-v1/`) : voir « Limites constatées sur la V1 » plus bas.
+- **V2 (jeudi 12 novembre)** : dataset complet (123 documents), ingestion corrigée,
+  filtre de domaine, suivi des commandes. Évaluée sur les 30 cas de référence ci-dessous.
+
+Pour choisir le modèle d'embeddings de la V2, on compare deux configurations sur le
+**même jeu de 30 cas** :
+
+| Configuration V2 | Embeddings | LLM |
 |---|---|---|
-| V1 (baseline) | `nomic-embed-text` | `qwen2.5:1.5b` |
-| V2 (candidate) | `qwen3-embedding:4b` | `qwen2.5:1.5b` |
+| `v2_nomic` (référence légère) | `nomic-embed-text` | `qwen2.5:1.5b` |
+| `v2_qwen3` (candidate retenue par l'étude) | `qwen3-embedding:4b` | `qwen2.5:1.5b` |
+
+## Limites constatées sur la V1
+
+Les captures de la démo du 10 novembre (`docs/captures-demo-v1/`) montrent que :
+
+- toutes les sources renvoyées avaient la section « Introduction » et le type « unknown » :
+  le titre de chaque fiche n'était pas reconnu à l'ingestion ;
+- chaque passage indexé mélangeait plusieurs fiches (un client et un produit, deux commandes…),
+  ce qui brouillait la recherche et les réponses ;
+- 25 passages seulement, sans projets, versions d'échantillons, retours clients ni FAQ :
+  la majorité des 30 cas de référence étaient hors de portée de la V1.
+
+Ces trois points sont corrigés dans la V2.
 
 ## Jeu de référence
 
@@ -47,30 +68,32 @@ bien les informations attendues.
 | Refus corrects | Part des questions pièges où le modèle refuse au lieu d'inventer | 100 % |
 | Latence moyenne | Temps moyen d'un appel `/ask` (recherche + génération) | ≤ 10 s |
 
-Une version est **validée** si tous les seuils sont atteints. La V2 est retenue si elle
-est validée et fait au moins aussi bien que la V1 sur Hit@4 et l'exactitude.
+Une configuration est **validée** si tous les seuils sont atteints. La V2 publiée utilise
+`qwen3-embedding:4b` si cette configuration est validée et fait au moins aussi bien que
+`nomic-embed-text` sur Hit@4 et l'exactitude ; sinon on publie `nomic-embed-text`.
 
 ## Lancer l'évaluation
 
 ```bash
 python generate_dataset.py
 
-# V1
+# Configuration nomic-embed-text
 export EMBED_MODEL=nomic-embed-text
 python clean.py && python ingest.py
-python evaluate.py --label v1
+python evaluate.py --label v2_nomic
 
-# V2 (réindexer : les embeddings changent avec le modèle)
+# Configuration qwen3-embedding:4b (réindexer : les embeddings changent avec le modèle)
 export EMBED_MODEL=qwen3-embedding:4b
 python clean.py && python ingest.py
-python evaluate.py --label v2
+python evaluate.py --label v2_qwen3
 ```
 
-Les rapports sont écrits dans `results/eval_v1.md` et `results/eval_v2.md` (+ JSON détaillé
-avec les réponses du modèle). `--retrieval-only` évalue uniquement la recherche, sans LLM.
+Les rapports sont écrits dans `results/eval_v2_nomic.md` et `results/eval_v2_qwen3.md`
+(+ JSON détaillé avec les réponses du modèle). `--retrieval-only` évalue uniquement la
+recherche, sans LLM.
 
-## Limites
+## Limites du protocole
 
 - L'exactitude est mesurée par présence de mots-clés : une réponse juste mais formulée
   autrement peut être comptée fausse. Relire le JSON pour les cas en échec.
-- 30 cas suffisent pour comparer des versions, pas pour une garantie statistique.
+- 30 cas suffisent pour comparer des configurations, pas pour une garantie statistique.
