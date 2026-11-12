@@ -45,9 +45,6 @@ DATASET_PATH = Path(
     os.getenv("DATASET_PATH", str(BASE_DIR / "givaudan_data.txt"))
 )
 
-# STORY_PATH est conservé pour rester compatible avec l'ancien pipeline.
-STORY_PATH = DATASET_PATH
-
 # Taille maximale d'un morceau de texte indexé.
 CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "800"))
 
@@ -83,3 +80,6 @@ ORDERS_TRACKING_PATH = Path(
         str(BASE_DIR / "data" / "orders_tracking_prototype.csv"),
     )
 )
+# Commandes du dataset synthétique (ORD-2026-xxx), générées par
+# generate_dataset.py. Également consultables via GET /orders/{order_id}.
+DATASET_ORDERS_PATH = BASE_DIR / "data" / "raw" / "orders.csv"

@@ -19,8 +19,12 @@ import config
 import rag
 
 
-SYSTEM_PROMPT = """Tu es l'assistant B2B d'une plateforme de commande
-intelligente pour les parfums et les arômes destinés aux produits laitiers.
+SYSTEM_PROMPT = """Tu es l'assistant B2B d'une plateforme qui permet aux entreprises de
+concevoir, personnaliser, tester et commander des fragrances et des arômes alimentaires.
+
+Tu renseignes sur le catalogue, les projets de création et leur avancement, les
+échantillons et leurs versions (V1, V2, V3…) avec les retours clients, les
+commandes et leur livraison, ainsi que les règles de la plateforme.
 
 Règles impératives :
 1. Réponds uniquement à partir des extraits fournis dans le contexte.
@@ -74,6 +78,10 @@ class AskRequest(BaseModel):
 
 class Source(BaseModel):
     section: str
+    doc_id: str = Field(
+        default="",
+        description="Identifiant du document source (ex. product_PR-001, knowledge-FRG-002).",
+    )
     document_type: str
     domain: str
     text: str
@@ -127,6 +135,7 @@ def retrieve(question: str, top_k: int, domain: str = "all") -> list[Source]:
     return [
         Source(
             section=metadata.get("section", metadata.get("title", "Section inconnue")),
+            doc_id=metadata.get("doc_id", ""),
             document_type=metadata.get(
                 "document_type",
                 metadata.get("record_type", "unknown"),
@@ -231,31 +240,40 @@ def get_order(order_id: str) -> dict:
     Dans une version réelle, cet endpoint devra être connecté à un système
     de commandes sécurisé et contrôlé par authentification.
     """
-    if not config.ORDERS_TRACKING_PATH.exists():
+    # Deux sources fictives : le suivi du prototype (CMD-2026-xxx) et les
+    # commandes du dataset synthétique (ORD-2026-xxx).
+    sources = [
+        path
+        for path in (config.ORDERS_TRACKING_PATH, config.DATASET_ORDERS_PATH)
+        if path.exists()
+    ]
+
+    if not sources:
         raise HTTPException(
             status_code=503,
             detail="Le fichier de suivi des commandes est introuvable.",
         )
 
-    try:
-        orders_df = pd.read_csv(config.ORDERS_TRACKING_PATH, dtype=str).fillna("")
-    except Exception as exc:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Impossible de lire le fichier de suivi : {exc}",
-        ) from exc
+    for path in sources:
+        try:
+            orders_df = pd.read_csv(path, dtype=str).fillna("")
+        except Exception as exc:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Impossible de lire le fichier de suivi : {exc}",
+            ) from exc
 
-    order = orders_df[
-        orders_df["order_id"].str.upper() == order_id.strip().upper()
-    ]
+        order = orders_df[
+            orders_df["order_id"].str.upper() == order_id.strip().upper()
+        ]
 
-    if order.empty:
-        raise HTTPException(
-            status_code=404,
-            detail="Commande introuvable.",
-        )
+        if not order.empty:
+            return order.iloc[0].to_dict()
 
-    return order.iloc[0].to_dict()
+    raise HTTPException(
+        status_code=404,
+        detail="Commande introuvable.",
+    )
 
 
 if __name__ == "__main__":
