@@ -432,12 +432,5 @@ Les critères évalués sont :
 - [Dépôt GitHub](https://github.com/Hetic-Hackathon-Givaudan-2026-CHARK/equipe10)
 - [Branche V2](https://github.com/Hetic-Hackathon-Givaudan-2026-CHARK/equipe10/tree/feature/taste-fragrance-rag)
 
----
 
-## Sources documentaires
-
-- `2.livrables.pdf` — Page 1
-- `Comment évalue-t-on un LLM _.pdf` — Page 4
-- `Comment évalue-t-on un LLM _.pdf` — Page 8
-
-L'évaluation par cas métier est adaptée à la mesure de la valeur réelle du système. Les dimensions de qualité étudiées incluent notamment l'exactitude, la pertinence, la factualité, la robustesse, la sécurité et la performance.
+incluent notamment l'exactitude, la pertinence, la factualité, la robustesse, la sécurité et la performance.
