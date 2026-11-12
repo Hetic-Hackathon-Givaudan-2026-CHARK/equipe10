@@ -12,7 +12,7 @@ livraison. L'assistant IA répond uniquement à partir de données **100 % ficti
 | 2. Pipeline de traitement fonctionnel | [`ingest.py`](ingest.py) → ChromaDB → [`rerank.py`](rerank.py) → [`api.py`](api.py) ; démo complète dans [`notebooks/`](notebooks) |
 | 3. Modèle V2 publié | V2 = branche `main` (V1 de mardi : tag [`v1`](https://github.com/Hetic-Hackathon-Givaudan-2026-CHARK/equipe10/releases/tag/v1)) ; embeddings `qwen3-embedding:4b` + LLM `qwen2.5:1.5b`, choix justifié par [`results/`](results) et [`docs/etude_benchmark_embeddings.pdf`](docs/etude_benchmark_embeddings.pdf) |
 | 4. Métriques et protocole sur 30 cas | section [Résultats](#résultats) ci-dessous, protocole [`docs/EVALUATION.md`](docs/EVALUATION.md), cas [`data/eval/`](data/eval), rapports [`results/`](results), tests [`tests/`](tests) |
-| 5. API renvoyant les résultats réels | [`api.py`](api.py), documentée par Swagger (`/docs`) et exposée via ngrok depuis le notebook |
+| 5. API renvoyant les résultats réels | [`api.py`](api.py) ; contrat pour les interfaces [`docs/API.md`](docs/API.md) et [`docs/openapi.json`](docs/openapi.json) ; Swagger (`/docs`) exposé via ngrok depuis le notebook |
 
 **Tester en 1 clic :** ouvrir [`notebooks/RAG_Givaudan_Equipe10.ipynb`](notebooks/RAG_Givaudan_Equipe10.ipynb) dans Colab puis « Exécuter tout ».
 
@@ -49,17 +49,18 @@ Mesurés sur les **30 cas de référence** et, pour vérifier que le modèle gé
   en anglais ou formulées sans les mots du document : c'est ce que mesurent les lignes V2.
 
 Les lignes V2 se remplissent en lançant le notebook (Ollama nécessaire), qui produit
-`results.zip` à déposer dans [`results/`](results).
+`results.zip` à déposer dans [`results/`](results). Le tableau complet de toutes les
+configurations est généré automatiquement dans [`results/SYNTHESE.md`](results/SYNTHESE.md) (`python report.py`).
 
-**Tests automatiques :** `python -m pytest` — 68 tests (données, cas d'évaluation, ingestion,
-reclassement, API complète) qui tournent sans Ollama en quelques secondes.
+**Tests automatiques :** `python -m pytest` — 73 tests (données, cas d'évaluation, ingestion,
+reclassement, API complète, contrat OpenAPI, synthèse) qui tournent sans Ollama en quelques secondes.
 
 ## Historique des versions
 
 | Version | Date | Contenu | Où la voir |
 |---|---|---|---|
 | **V1** | mardi 10 novembre | Premier prototype démontré : dataset de 29 documents (clients, produits, matières premières, commandes, échantillons), ingestion ChromaDB, API FastAPI (`/health`, `/search`, `/ask`, `/demo/ping`) exposée via ngrok, `qwen3-embedding:4b` + `qwen2.5:1.5b`, étude comparative des modèles d'embeddings | tag [`v1`](https://github.com/Hetic-Hackathon-Givaudan-2026-CHARK/equipe10/releases/tag/v1), captures de la démo dans [`docs/captures-demo-v1/`](docs/captures-demo-v1) |
-| **V2** | jeudi 12 novembre | Dataset complet (103 documents : catalogue de 30 produits, projets de création, échantillons V1/V2/V3, commandes, FAQ) + base de connaissances du chatbot (20 fiches) ; ingestion corrigée ; reclassement des résultats ; filtre par domaine ; suivi des commandes `GET /orders/{id}` ; évaluation sur 30 cas de référence + 10 inédits ; 68 tests automatiques | branche `main` |
+| **V2** | jeudi 12 novembre | Dataset complet (103 documents : catalogue de 30 produits, projets de création, échantillons V1/V2/V3, commandes, FAQ) + base de connaissances du chatbot (20 fiches) ; ingestion corrigée ; reclassement des résultats ; filtre par domaine ; suivi des commandes `GET /orders/{id}` ; évaluation sur 30 cas de référence + 10 inédits ; 73 tests automatiques ; API ouverte aux interfaces web (CORS) et contrat documenté | branche `main` |
 
 **Ce que la V2 corrige par rapport à la V1** (visible sur les captures de la démo V1) : chaque
 fiche du dataset était mal découpée — toutes les sources avaient la section « Introduction »
@@ -113,6 +114,11 @@ Sur Colab : `notebooks/RAG_Givaudan_Equipe10.ipynb` déroule tout (installation,
 - `GET /orders/{order_id}` — suivi d'une commande (`CMD-2026-xxx` du prototype ou `ORD-2026-xxx` du dataset), toujours au même format
 - `GET /demo/ping` — endpoint factice pour la démo ngrok
 
+Contrat complet pour les interfaces (champs, exemples, erreurs, appel depuis un front React via
+ngrok) : [docs/API.md](docs/API.md). L'API accepte les appels depuis un navigateur (CORS ouvert par
+défaut, `CORS_ORIGINS` pour restreindre). Via ngrok gratuit, ajouter l'en-tête
+`ngrok-skip-browser-warning: true`.
+
 ## Évaluation du modèle
 
 30 cas de référence et 10 cas inédits (`data/eval/`), `evaluate.py` : Hit@k, MRR,
@@ -128,7 +134,7 @@ sans IA, comme plancher. Deux modèles d'embeddings comparés pour la V2 :
 - `POST /ask` produit une réponse fondée sur le contexte retrouvé.
 - `GET /demo/ping` est joignable en local et via ngrok.
 - `python evaluate.py` produit les rapports d'évaluation dans `results/`.
-- `python -m pytest` passe.
+- `python -m pytest` passe (73 tests).
 
 ## Organisation du dépôt
 
@@ -139,6 +145,8 @@ sans IA, comme plancher. Deux modèles d'embeddings comparés pour la V2 :
 ├── evaluate.py              # évaluation sur les 30 cas de référence
 ├── baseline_tfidf.py        # baseline sans IA (TF-IDF) sur les mêmes cas
 ├── rerank.py                # reclassement des résultats (références exactes, type de question)
+├── report.py                # synthèse de toutes les évaluations -> results/SYNTHESE.md
+├── export_openapi.py        # exporte le contrat d'API -> docs/openapi.json
 ├── rag.py, config.py        # briques communes et paramètres (surchargeables par variables d'env.)
 ├── list.py, clean.py        # inspecter / vider la base vectorielle
 ├── sample_questions.py      # questions de démo
@@ -153,7 +161,7 @@ sans IA, comme plancher. Deux modèles d'embeddings comparés pour la V2 :
 ├── results/                 # rapports d'évaluation (générés par evaluate.py)
 ├── tests/                   # tests automatiques (pytest, sans Ollama)
 ├── notebooks/               # notebook Colab de démonstration
-└── docs/                    # protocole d'évaluation, étude des modèles, captures de la démo V1
+└── docs/                    # contrat d'API, protocole d'évaluation, étude des modèles, captures de la démo V1
 ```
 
 ## Règle de sécurité

@@ -70,3 +70,9 @@ def test_suivi_commandes_meme_format_que_le_prototype():
     with open(g.DATA_DIR / "orders_tracking_prototype.csv", encoding="utf-8") as f:
         prototype_columns = next(csv.reader(f))
     assert dataset_columns == prototype_columns
+
+
+def test_dates_de_statut_coherentes():
+    for order in g.orders:
+        status_date = g.ORDER_STATUS_DATES[order["order_id"]]
+        assert order["order_date"] <= status_date <= g.REFERENCE_DATE

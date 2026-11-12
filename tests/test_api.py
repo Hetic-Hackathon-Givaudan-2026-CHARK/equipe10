@@ -25,7 +25,9 @@ def test_demo_ping(client):
 def test_search_renvoie_les_champs_du_contrat(client):
     sources = client.post("/search", json={"question": "arôme mangue boisson protéinée"}).json()
     assert len(sources) == 4
-    assert set(sources[0]) == {"section", "doc_id", "document_type", "domain", "text", "score"}
+    assert set(sources[0]) == {"section", "doc_id", "document_type", "domain", "text", "score", "rank_score"}
+    # L'ordre des sources suit rank_score (similarité + bonus du reclassement).
+    assert [s["rank_score"] for s in sources] == sorted((s["rank_score"] for s in sources), reverse=True)
 
 
 def test_search_reference_exacte_en_premier(client):
@@ -61,3 +63,19 @@ def test_orders_un_seul_format(client):
 
 def test_orders_introuvable(client):
     assert client.get("/orders/INCONNUE").status_code == 404
+
+
+def test_cors_pour_les_interfaces_web(client):
+    response = client.options("/ask", headers={
+        "Origin": "http://localhost:5173", "Access-Control-Request-Method": "POST"})
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] in {"*", "http://localhost:5173"}
+
+
+def test_contrat_openapi_a_jour(indexed):
+    import json
+    from pathlib import Path
+
+    exported = json.loads((Path(__file__).resolve().parents[1] / "docs" / "openapi.json").read_text(encoding="utf-8"))
+    assert exported == json.loads(json.dumps(indexed.app.openapi())), \
+        "docs/openapi.json n'est plus à jour : lancer python export_openapi.py"

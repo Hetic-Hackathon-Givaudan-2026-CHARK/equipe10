@@ -68,7 +68,8 @@ def question_references(question: str) -> set[str]:
 def rerank(question: str, candidates: list[dict], top_k: int) -> list[dict]:
     """Réordonne des candidats {doc_id, document_type, text, score} et garde top_k.
 
-    Le score d'origine est conservé ; le tri utilise score + bonus.
+    Le score d'origine (similarité) est conservé ; chaque candidat reçoit
+    rank_score = score + bonus, qui est la valeur utilisée pour le tri.
     """
     references = question_references(question)
     intents = question_intents(question)
@@ -82,4 +83,5 @@ def rerank(question: str, candidates: list[dict], top_k: int) -> list[dict]:
             bonus += TYPE_BONUS
         return candidate["score"] + bonus
 
-    return sorted(candidates, key=boosted, reverse=True)[:top_k]
+    ranked = [dict(c, rank_score=round(boosted(c), 4)) for c in candidates]
+    return sorted(ranked, key=lambda c: c["rank_score"], reverse=True)[:top_k]

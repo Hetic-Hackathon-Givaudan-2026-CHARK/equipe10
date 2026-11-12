@@ -63,6 +63,9 @@ TOP_K = int(os.getenv("TOP_K", "4"))
 # Reclassement des résultats (rerank.py) : références exactes et type de
 # question. RERANK=0 pour le désactiver et comparer.
 RERANK = os.getenv("RERANK", "1") != "0"
+
+# Origines web autorisées à appeler l'API (CORS), séparées par des virgules.
+CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "*").split(",") if o.strip()]
 # -------------------------------------------------------------------
 # Fichiers du prototype conversationnel
 # -------------------------------------------------------------------
