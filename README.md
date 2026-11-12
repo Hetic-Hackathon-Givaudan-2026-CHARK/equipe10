@@ -16,6 +16,25 @@ livraison. L'assistant IA répond uniquement à partir de données **100 % ficti
 
 **Tester en 1 clic :** ouvrir [`notebooks/RAG_Givaudan_Equipe10.ipynb`](notebooks/RAG_Givaudan_Equipe10.ipynb) dans Colab puis « Exécuter tout ».
 
+## Résultats sur les 30 cas de référence
+
+| Configuration | Hit@4 | MRR | Exactitude des réponses | Refus corrects | Latence moyenne | Rapport |
+|---|---|---|---|---|---|---|
+| Seuil de validation | ≥ 90 % | ≥ 0,75 | ≥ 80 % | 100 % | ≤ 10 s | |
+| Baseline TF-IDF (sans IA, recherche seule) | **92,9 %** (26/28) | **0,690** | non mesuré | non mesuré | 1 ms | [rapport](results/eval_baseline_tfidf.md) |
+| V2 — `nomic-embed-text` + `qwen2.5:1.5b` | *à mesurer* | *à mesurer* | *à mesurer* | *à mesurer* | *à mesurer* | `results/eval_v2_nomic.md` |
+| V2 — `qwen3-embedding:4b` + `qwen2.5:1.5b` | *à mesurer* | *à mesurer* | *à mesurer* | *à mesurer* | *à mesurer* | `results/eval_v2_qwen3.md` |
+
+**Ce que montre la baseline sans IA :** une recherche par mots-clés retrouve le bon document
+dans le top 4 pour 26 questions sur 28, mais souvent pas en premier (MRR 0,690 < 0,75) : elle
+confond un projet avec le produit qu'il utilise, ou une commande avec une autre du même client.
+Elle échoue complètement sur la question en anglais (Q08 : « sunscreen » ≠ « crème solaire »)
+et sur une question formulée sans les mots du document (Q15). Ce sont exactement les cas que
+les modèles d'embeddings doivent améliorer : un modèle qui ne bat pas cette baseline n'apporte rien.
+
+Les lignes V2 se remplissent en lançant le notebook (Ollama nécessaire), qui produit
+`results.zip` à déposer dans [`results/`](results).
+
 ## Historique des versions
 
 | Version | Date | Contenu | Où la voir |
@@ -97,6 +116,7 @@ exactitude des réponses, refus corrects, latence. Deux modèles d'embeddings co
 ├── ingest.py                # indexe le dataset + la base de connaissances dans ChromaDB
 ├── api.py                   # API FastAPI
 ├── evaluate.py              # évaluation sur les 30 cas de référence
+├── baseline_tfidf.py        # baseline sans IA (TF-IDF) sur les mêmes 30 cas
 ├── rag.py, config.py        # briques communes et paramètres (surchargeables par variables d'env.)
 ├── list.py, clean.py        # inspecter / vider la base vectorielle
 ├── sample_questions.py      # questions de démo
