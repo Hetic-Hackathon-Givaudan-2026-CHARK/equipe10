@@ -1,0 +1,66 @@
+name: Démo API (lien Swagger temporaire)
+
+# Lance l'API avec les vrais modèles sur un serveur GitHub et l'expose via un
+# tunnel public temporaire (Cloudflare, sans compte). Le lien Swagger apparaît
+# dans le résumé de l'exécution. Données 100 % fictives. Durée : environ 3 h.
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - demo/swagger
+
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 200
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Dépendances
+        run: pip install -r requirements.txt
+
+      - name: Ollama et modèles
+        run: |
+          curl -fsSL https://ollama.com/install.sh | sh
+          (ollama serve > /tmp/ollama.log 2>&1 &) || true
+          for i in $(seq 1 60); do curl -sf http://127.0.0.1:11434/api/tags > /dev/null && break; sleep 2; done
+          ollama pull qwen3-embedding:4b
+          ollama pull qwen2.5:3b
+
+      - name: Dataset et indexation
+        run: |
+          python generate_dataset.py
+          python clean.py && python ingest.py
+
+      - name: Lancement de l'API et du tunnel public
+        run: |
+          nohup python api.py > /tmp/api.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf http://127.0.0.1:8000/health > /dev/null && break; sleep 2; done
+          curl -s http://127.0.0.1:8000/health
+          # Préchauffe le modèle pour que la première question soit rapide.
+          curl -s -X POST http://127.0.0.1:8000/ask -H "Content-Type: application/json" \
+            -d '{"question": "Je cherche un arôme mangue pour une boisson protéinée."}' > /dev/null || true
+          curl -fsSL -o cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
+          chmod +x cloudflared
+          nohup ./cloudflared tunnel --no-autoupdate --url http://127.0.0.1:8000 > /tmp/tunnel.log 2>&1 &
+          for i in $(seq 1 60); do
+            URL=$(grep -o 'https://[a-z0-9-]*\.trycloudflare\.com' /tmp/tunnel.log | head -1)
+            [ -n "$URL" ] && break; sleep 2
+          done
+          echo "Swagger : $URL/docs"
+          echo "::notice title=Lien Swagger::$URL/docs"
+          echo "## Lien Swagger : $URL/docs" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: API en ligne (environ 3 h)
+        run: |
+          for i in $(seq 1 36); do
+            curl -sf http://127.0.0.1:8000/health > /dev/null && echo "$(date -u +%H:%M) API en ligne" || echo "$(date -u +%H:%M) API indisponible"
+            sleep 300
+          done
