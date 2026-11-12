@@ -1,33 +1,95 @@
-# Delivery plan — Intelligent Ordering Platform RAG
+# Plateforme B2B intelligente d'arômes et de fragrances — RAG (équipe 10)
 
-## Objective
-Deliver a local, demonstrable RAG baseline for an intelligent B2B ordering platform. The dataset is synthetic and contains clients, products, raw materials, orders, samples and RAG-ready documents.
+Prototype de RAG pour une plateforme où les entreprises conçoivent, personnalisent, testent
+et commandent des arômes alimentaires et des fragrances, en suivant leurs projets jusqu'à la
+livraison. L'assistant IA répond uniquement à partir de données **100 % fictives**.
 
-## Required deliverables
+## Données indexées
 
-1. **Usable dataset** — generated under `data/` and as `givaudan_data.txt` for direct ingestion by the starter repository.
-2. **Representative baseline result** — baseline with `nomic-embed-text` and `qwen2.5:1.5b`; measured through a benchmark script.
-3. **Feasibility proof** — ingestion, API health check and sample question scripts.
-4. **Swagger/OpenAPI** — FastAPI automatically exposes `/docs` and `/openapi.json`.
-5. **Dummy endpoint exposed through ngrok** — `GET /demo/ping`; it deliberately returns no business data.
+`python ingest.py` indexe deux sources dans ChromaDB :
 
-## Recommended sequence
+**1. Dataset synthétique** — généré par `generate_dataset.py` (contrôles de cohérence automatiques),
+103 documents dans `givaudan_data.txt` :
 
-1. Fork `hmicn/example-rag` and clone the fork.
-2. Install Python dependencies and Ollama models.
-3. Add the dataset generator and generate the data.
-4. Point `config.py` to `givaudan_data.txt`; ingest it with the starter repository pipeline.
-5. Run the baseline benchmark and save its measured output.
-6. Add the Swagger-described demo endpoint and publish it using ngrok.
+| Entité | Nb | Fonctionnalité de la plateforme |
+|---|---|---|
+| Produits catalogue | 30 | catalogue intelligent : 16 arômes `FLV-xxx`, 14 fragrances `FRG-1xx` (profil, applications, intensité, naturalité, certifications, allergènes, dosage, prix, MOQ, délai) |
+| Projets de création | 12 | création personnalisée + suivi (brief, préférences, étape, avancement %, prochaine étape) |
+| Échantillons | 17 | échantillons et rectifications V1/V2/V3 avec retours et notes clients |
+| Commandes | 10 | gestion des commandes `ORD-2026-xxx` (statut, livraison, montant avec remise volume) |
+| FAQ | 10 | règles : commande, échantillons, rectifications, délais, tarifs, naturalité… |
+| Clients / matières premières | 10 / 14 | comptes B2B, origines et notes réglementaires |
 
-## Security rule
+Tables CSV dans `data/raw/`, documents avec métadonnées dans `data/rag/documents.jsonl`.
 
-Use synthetic/anonymised data only for the demo. Do not put real customer identities, proprietary formulations, raw-material composition, credentials, or internal order data in GitHub, ChromaDB or an ngrok-exposed endpoint.
+**2. Base de connaissances du chatbot** — `data/rag_knowledge_base_prototype.csv` (20 fiches :
+parfums `FRG-00x`, arômes laitiers `ARM-00x`, personnalisation, processus de commande, gouvernance).
 
-## Minimum acceptance
-- `python ingest.py givaudan_data.txt` completes.
-- `python list.py` shows indexed chunks.
-- `GET /health` returns the number of chunks and model names.
-- `POST /search` returns relevant passages for a product/order question.
-- `POST /ask` produces an answer grounded in returned context.
-- `GET /demo/ping` is reachable locally and through ngrok.
+Chaque document porte un **domaine** (`fragrance`, `dairy_aroma` pour les arômes alimentaires,
+ou `shared`) utilisé par le filtre `domain` de l'API.
+
+## Démarrage
+
+```bash
+pip install -r requirements.txt
+ollama pull nomic-embed-text && ollama pull qwen2.5:1.5b
+
+python generate_dataset.py
+python clean.py && python ingest.py
+python list.py
+uvicorn api:app --reload        # Swagger : http://127.0.0.1:8000/docs
+```
+
+Sur Colab : `notebooks/RAG_Givaudan_Equipe10.ipynb` déroule tout (installation, dataset,
+évaluation V1/V2, API, ngrok). Le token ngrok se met dans les *Secrets* Colab (`NGROK_AUTHTOKEN`).
+
+## API
+
+- `GET /health` — documents indexés et modèles utilisés
+- `POST /search` — documents pertinents (`doc_id`, `document_type`, `domain`, score)
+- `POST /ask` — réponse rédigée à partir des documents retrouvés ; `domain` = `fragrance`, `dairy_aroma` ou `all`
+- `GET /orders/{order_id}` — suivi d'une commande (`CMD-2026-xxx` du prototype ou `ORD-2026-xxx` du dataset)
+- `GET /demo/ping` — endpoint factice pour la démo ngrok
+
+## Évaluation du modèle
+
+30 cas de référence (`data/eval/reference_cases.json`) et `evaluate.py` : Hit@k, MRR,
+exactitude des réponses, refus corrects, latence. V1 = `nomic-embed-text`,
+V2 = `qwen3-embedding:4b`. Protocole et seuils : [docs/EVALUATION.md](docs/EVALUATION.md).
+
+## Critères d'acceptation minimum
+
+- `python ingest.py` se termine sans erreur ; `python list.py` affiche les documents indexés.
+- `GET /health` renvoie le nombre de documents et les modèles.
+- `POST /search` renvoie des passages pertinents pour une question produit ou commande.
+- `POST /ask` produit une réponse fondée sur le contexte retrouvé.
+- `GET /demo/ping` est joignable en local et via ngrok.
+- `python evaluate.py` produit les rapports V1 et V2 dans `results/`.
+
+## Organisation du dépôt
+
+```
+├── generate_dataset.py      # génère et contrôle le dataset synthétique
+├── ingest.py                # indexe le dataset + la base de connaissances dans ChromaDB
+├── api.py                   # API FastAPI
+├── evaluate.py              # évaluation sur les 30 cas de référence
+├── rag.py, config.py        # briques communes et paramètres (surchargeables par variables d'env.)
+├── list.py, clean.py        # inspecter / vider la base vectorielle
+├── sample_questions.py      # questions de démo
+├── givaudan_data.txt        # corpus généré, prêt à ingérer
+├── data/
+│   ├── raw/                 # tables CSV du dataset (clients, produits, projets, échantillons, commandes…)
+│   ├── rag/documents.jsonl  # documents du dataset avec métadonnées
+│   ├── eval/                # 30 cas de référence
+│   ├── rag_knowledge_base_prototype.csv   # base de connaissances du chatbot
+│   └── orders_tracking_prototype.csv      # suivi de commandes du prototype
+├── results/                 # rapports d'évaluation (générés par evaluate.py)
+├── notebooks/               # notebook Colab de démonstration
+└── docs/                    # protocole d'évaluation, étude des modèles, captures de la démo V1
+```
+
+## Règle de sécurité
+
+Données synthétiques uniquement. Aucune identité client réelle, formule propriétaire,
+composition de matière première, identifiant ou donnée de commande interne dans GitHub,
+ChromaDB ou un endpoint exposé via ngrok. Aucun token (ngrok…) en clair dans le code ou le notebook.
