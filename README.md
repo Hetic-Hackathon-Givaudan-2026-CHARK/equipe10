@@ -9,38 +9,57 @@ livraison. L'assistant IA répond uniquement à partir de données **100 % ficti
 | Livrable | Où le trouver |
 |---|---|
 | 1. Données nettoyées et préparées | [`data/raw/`](data/raw) (tables CSV) et [`generate_dataset.py`](generate_dataset.py) (génération + contrôles de cohérence) |
-| 2. Pipeline de traitement fonctionnel | [`ingest.py`](ingest.py) → ChromaDB → [`api.py`](api.py) ; démo complète dans [`notebooks/`](notebooks) |
+| 2. Pipeline de traitement fonctionnel | [`ingest.py`](ingest.py) → ChromaDB → [`rerank.py`](rerank.py) → [`api.py`](api.py) ; démo complète dans [`notebooks/`](notebooks) |
 | 3. Modèle V2 publié | V2 = branche `main` (V1 de mardi : tag [`v1`](https://github.com/Hetic-Hackathon-Givaudan-2026-CHARK/equipe10/releases/tag/v1)) ; embeddings `qwen3-embedding:4b` + LLM `qwen2.5:1.5b`, choix justifié par [`results/`](results) et [`docs/etude_benchmark_embeddings.pdf`](docs/etude_benchmark_embeddings.pdf) |
-| 4. Métriques et protocole sur 30 cas | [`docs/EVALUATION.md`](docs/EVALUATION.md), [`data/eval/reference_cases.json`](data/eval/reference_cases.json), rapports dans [`results/`](results) |
+| 4. Métriques et protocole sur 30 cas | section [Résultats](#résultats) ci-dessous, protocole [`docs/EVALUATION.md`](docs/EVALUATION.md), cas [`data/eval/`](data/eval), rapports [`results/`](results), tests [`tests/`](tests) |
 | 5. API renvoyant les résultats réels | [`api.py`](api.py), documentée par Swagger (`/docs`) et exposée via ngrok depuis le notebook |
 
 **Tester en 1 clic :** ouvrir [`notebooks/RAG_Givaudan_Equipe10.ipynb`](notebooks/RAG_Givaudan_Equipe10.ipynb) dans Colab puis « Exécuter tout ».
 
-## Résultats sur les 30 cas de référence
+## Résultats
 
-| Configuration | Hit@4 | MRR | Exactitude des réponses | Refus corrects | Latence moyenne | Rapport |
-|---|---|---|---|---|---|---|
-| Seuil de validation | ≥ 90 % | ≥ 0,75 | ≥ 80 % | 100 % | ≤ 10 s | |
-| Baseline TF-IDF (sans IA, recherche seule) | **92,9 %** (26/28) | **0,690** | non mesuré | non mesuré | 1 ms | [rapport](results/eval_baseline_tfidf.md) |
-| V2 — `nomic-embed-text` + `qwen2.5:1.5b` | *à mesurer* | *à mesurer* | *à mesurer* | *à mesurer* | *à mesurer* | `results/eval_v2_nomic.md` |
-| V2 — `qwen3-embedding:4b` + `qwen2.5:1.5b` | *à mesurer* | *à mesurer* | *à mesurer* | *à mesurer* | *à mesurer* | `results/eval_v2_qwen3.md` |
+Mesurés sur les **30 cas de référence** et, pour vérifier que le modèle généralise, sur
+**10 cas inédits** écrits avant toute mesure et jamais utilisés pour régler le système.
 
-**Ce que montre la baseline sans IA :** une recherche par mots-clés retrouve le bon document
-dans le top 4 pour 26 questions sur 28, mais souvent pas en premier (MRR 0,690 < 0,75) : elle
-confond un projet avec le produit qu'il utilise, ou une commande avec une autre du même client.
-Elle échoue complètement sur la question en anglais (Q08 : « sunscreen » ≠ « crème solaire »)
-et sur une question formulée sans les mots du document (Q15). Ce sont exactement les cas que
-les modèles d'embeddings doivent améliorer : un modèle qui ne bat pas cette baseline n'apporte rien.
+| Configuration | Cas | Hit@4 | MRR | Exactitude | Refus | Latence | Rapport |
+|---|---|---|---|---|---|---|---|
+| *Seuil de validation* | | *≥ 90 %* | *≥ 0,75* | *≥ 80 %* | *100 %* | *≤ 10 s* | |
+| Baseline TF-IDF (sans IA) | 30 | 92,9 % | 0,690 ❌ | — | — | 1 ms | [rapport](results/eval_baseline_tfidf.md) |
+| Baseline TF-IDF **+ reclassement** | 30 | **96,4 %** | **0,869** ✅ | — | — | 1 ms | [rapport](results/eval_baseline_tfidf_rerank.md) |
+| Baseline TF-IDF (sans IA) | 10 inédits | 100 % | 0,759 | — | — | 1 ms | [rapport](results/eval_baseline_tfidf_inedits.md) |
+| Baseline TF-IDF **+ reclassement** | 10 inédits | **100 %** | **1,000** | — | — | 1 ms | [rapport](results/eval_baseline_tfidf_rerank_inedits.md) |
+| V2 — `nomic-embed-text` + `qwen2.5:1.5b` + reclassement | 30 | *à mesurer* | *à mesurer* | *à mesurer* | *à mesurer* | *à mesurer* | `results/eval_v2_nomic.md` |
+| V2 — `qwen3-embedding:4b` + `qwen2.5:1.5b` + reclassement | 30 | *à mesurer* | *à mesurer* | *à mesurer* | *à mesurer* | *à mesurer* | `results/eval_v2_qwen3.md` |
+
+« — » : non mesuré, la baseline ne fait que la recherche (pas de LLM pour rédiger ou refuser).
+
+**Ce que montrent les mesures déjà faites :**
+
+- **Une recherche par mots-clés trouve souvent le bon document, mais pas en premier**
+  (MRR 0,690) : elle confond un projet avec le produit qu'il utilise, ou une commande avec une
+  autre du même client. Elle échoue sur la question en anglais (Q08 : « sunscreen » ≠
+  « crème solaire »).
+- **Le reclassement ([`rerank.py`](rerank.py)) corrige la plupart de ces confusions** avec deux
+  règles explicables : une référence citée (`ORD-2026-007`, `FRG-108`…) fait passer son document
+  devant, et le type de question (« où en est », « je cherche », « retour sur l'échantillon »…)
+  favorise le bon type de document. 10 cas sur 30 montent, aucun ne descend. Le gain se confirme
+  sur les 10 cas inédits (MRR 0,759 → 1,000) : ce n'est pas un réglage sur mesure. Il est actif
+  par défaut dans l'API (`RERANK=0` pour le couper).
+- Les modèles d'embeddings doivent battre la baseline reclassée, notamment sur les questions
+  en anglais ou formulées sans les mots du document : c'est ce que mesurent les lignes V2.
 
 Les lignes V2 se remplissent en lançant le notebook (Ollama nécessaire), qui produit
 `results.zip` à déposer dans [`results/`](results).
+
+**Tests automatiques :** `python -m pytest` — 68 tests (données, cas d'évaluation, ingestion,
+reclassement, API complète) qui tournent sans Ollama en quelques secondes.
 
 ## Historique des versions
 
 | Version | Date | Contenu | Où la voir |
 |---|---|---|---|
 | **V1** | mardi 10 novembre | Premier prototype démontré : dataset de 29 documents (clients, produits, matières premières, commandes, échantillons), ingestion ChromaDB, API FastAPI (`/health`, `/search`, `/ask`, `/demo/ping`) exposée via ngrok, `qwen3-embedding:4b` + `qwen2.5:1.5b`, étude comparative des modèles d'embeddings | tag [`v1`](https://github.com/Hetic-Hackathon-Givaudan-2026-CHARK/equipe10/releases/tag/v1), captures de la démo dans [`docs/captures-demo-v1/`](docs/captures-demo-v1) |
-| **V2** | jeudi 12 novembre | Dataset complet (103 documents : catalogue de 30 produits, projets de création, échantillons V1/V2/V3, commandes, FAQ) + base de connaissances du chatbot (20 fiches) ; ingestion corrigée ; filtre par domaine ; suivi des commandes `GET /orders/{id}` ; évaluation sur 30 cas de référence | branche `main` |
+| **V2** | jeudi 12 novembre | Dataset complet (103 documents : catalogue de 30 produits, projets de création, échantillons V1/V2/V3, commandes, FAQ) + base de connaissances du chatbot (20 fiches) ; ingestion corrigée ; reclassement des résultats ; filtre par domaine ; suivi des commandes `GET /orders/{id}` ; évaluation sur 30 cas de référence + 10 inédits ; 68 tests automatiques | branche `main` |
 
 **Ce que la V2 corrige par rapport à la V1** (visible sur les captures de la démo V1) : chaque
 fiche du dataset était mal découpée — toutes les sources avaient la section « Introduction »
@@ -89,15 +108,16 @@ Sur Colab : `notebooks/RAG_Givaudan_Equipe10.ipynb` déroule tout (installation,
 ## API
 
 - `GET /health` — documents indexés et modèles utilisés
-- `POST /search` — documents pertinents (`doc_id`, `document_type`, `domain`, score)
+- `POST /search` — documents pertinents (`doc_id`, `document_type`, `domain`, score), reclassés par `rerank.py`
 - `POST /ask` — réponse rédigée à partir des documents retrouvés ; `domain` = `fragrance`, `dairy_aroma` ou `all`
 - `GET /orders/{order_id}` — suivi d'une commande (`CMD-2026-xxx` du prototype ou `ORD-2026-xxx` du dataset), toujours au même format
 - `GET /demo/ping` — endpoint factice pour la démo ngrok
 
 ## Évaluation du modèle
 
-30 cas de référence (`data/eval/reference_cases.json`) et `evaluate.py` : Hit@k, MRR,
-exactitude des réponses, refus corrects, latence. Deux modèles d'embeddings comparés pour la V2 :
+30 cas de référence et 10 cas inédits (`data/eval/`), `evaluate.py` : Hit@k, MRR,
+exactitude des réponses, refus corrects, latence. `baseline_tfidf.py` mesure la même chose
+sans IA, comme plancher. Deux modèles d'embeddings comparés pour la V2 :
 `nomic-embed-text` et `qwen3-embedding:4b`. Protocole et seuils : [docs/EVALUATION.md](docs/EVALUATION.md).
 
 ## Critères d'acceptation minimum
@@ -108,6 +128,7 @@ exactitude des réponses, refus corrects, latence. Deux modèles d'embeddings co
 - `POST /ask` produit une réponse fondée sur le contexte retrouvé.
 - `GET /demo/ping` est joignable en local et via ngrok.
 - `python evaluate.py` produit les rapports d'évaluation dans `results/`.
+- `python -m pytest` passe.
 
 ## Organisation du dépôt
 
@@ -116,7 +137,8 @@ exactitude des réponses, refus corrects, latence. Deux modèles d'embeddings co
 ├── ingest.py                # indexe le dataset + la base de connaissances dans ChromaDB
 ├── api.py                   # API FastAPI
 ├── evaluate.py              # évaluation sur les 30 cas de référence
-├── baseline_tfidf.py        # baseline sans IA (TF-IDF) sur les mêmes 30 cas
+├── baseline_tfidf.py        # baseline sans IA (TF-IDF) sur les mêmes cas
+├── rerank.py                # reclassement des résultats (références exactes, type de question)
 ├── rag.py, config.py        # briques communes et paramètres (surchargeables par variables d'env.)
 ├── list.py, clean.py        # inspecter / vider la base vectorielle
 ├── sample_questions.py      # questions de démo
@@ -124,11 +146,12 @@ exactitude des réponses, refus corrects, latence. Deux modèles d'embeddings co
 ├── data/
 │   ├── raw/                 # tables CSV du dataset (clients, produits, projets, échantillons, commandes…)
 │   ├── rag/documents.jsonl  # documents du dataset avec métadonnées
-│   ├── eval/                # 30 cas de référence
+│   ├── eval/                # 30 cas de référence + 10 cas inédits
 │   ├── rag_knowledge_base_prototype.csv   # base de connaissances du chatbot
 │   ├── orders_tracking_prototype.csv      # suivi de commandes du prototype (CMD-2026-xxx)
 │   └── orders_tracking_dataset.csv        # suivi des commandes du dataset, même format (ORD-2026-xxx)
 ├── results/                 # rapports d'évaluation (générés par evaluate.py)
+├── tests/                   # tests automatiques (pytest, sans Ollama)
 ├── notebooks/               # notebook Colab de démonstration
 └── docs/                    # protocole d'évaluation, étude des modèles, captures de la démo V1
 ```

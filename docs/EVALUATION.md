@@ -59,6 +59,28 @@ aussi éviter les documents proches mais hors sujet.
 Chaque cas a été vérifié automatiquement : les documents attendus existent et contiennent
 bien les informations attendues.
 
+## Cas inédits (généralisation)
+
+`data/eval/unseen_cases.json` contient 10 questions supplémentaires (recommandation, fiche
+produit, suivi de projet, commande, FAQ, question en anglais, piège hors périmètre), écrites
+**avant** toute mesure du reclassement et jamais utilisées pour régler le système. Un gain
+mesuré sur les 30 cas qui ne se retrouve pas sur ces 10 cas serait un sur-apprentissage.
+
+## Reclassement des résultats
+
+`rerank.py` réordonne les candidats de la recherche (top_k × 5 examinés) avec deux règles :
+référence citée dans la question → bonus au document dont c'est la référence principale ;
+type de question (« où en est », « je cherche », « retour sur l'échantillon », « statut de la
+commande »…) → petit bonus au type de document correspondant. Mesure sur la baseline TF-IDF :
+
+| | Hit@4 (30 cas) | MRR (30 cas) | Hit@4 (10 inédits) | MRR (10 inédits) |
+|---|---|---|---|---|
+| sans reclassement | 92,9 % | 0,690 | 100 % | 0,759 |
+| avec reclassement | 96,4 % | 0,869 | 100 % | 1,000 |
+
+10 cas sur 30 gagnent des places, aucun n'en perd. Actif par défaut dans l'API (`RERANK=0`
+pour le désactiver et comparer).
+
 ## Métriques et critères de validation
 
 | Métrique | Définition | Seuil de validation |
@@ -79,8 +101,13 @@ sur Hit@4 et MRR. Une configuration est **validée** si tous les seuils sont att
 ```bash
 python generate_dataset.py
 
-# Baseline sans IA (aucun modèle requis)
+# Tests automatiques (aucun modèle requis)
+python -m pytest -q
+
+# Baseline sans IA (aucun modèle requis), sans puis avec reclassement, puis cas inédits
 python baseline_tfidf.py
+python baseline_tfidf.py --rerank --label baseline_tfidf_rerank
+python baseline_tfidf.py --rerank --cases data/eval/unseen_cases.json --label baseline_tfidf_rerank_inedits
 
 # Configuration nomic-embed-text
 export EMBED_MODEL=nomic-embed-text
@@ -91,6 +118,7 @@ python evaluate.py --label v2_nomic
 export EMBED_MODEL=qwen3-embedding:4b
 python clean.py && python ingest.py
 python evaluate.py --label v2_qwen3
+python evaluate.py --label v2_qwen3_inedits --cases data/eval/unseen_cases.json
 ```
 
 Les rapports sont écrits dans `results/eval_v2_nomic.md` et `results/eval_v2_qwen3.md`

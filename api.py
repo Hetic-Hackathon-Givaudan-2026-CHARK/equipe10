@@ -17,6 +17,7 @@ from pydantic import BaseModel, Field
 
 import config
 import rag
+import rerank
 
 
 SYSTEM_PROMPT = """Tu es l'assistant B2B d'une plateforme qui permet aux entreprises de
@@ -114,9 +115,13 @@ def retrieve(question: str, top_k: int, domain: str = "all") -> list[Source]:
             ),
         )
 
+    # Avec le reclassement, on examine plus de candidats que top_k puis on
+    # garde les meilleurs après rerank.py (références exactes, type de question).
+    n_candidates = top_k * rerank.CANDIDATE_FACTOR if config.RERANK else top_k
+
     query_arguments = {
         "query_embeddings": [rag.embed_query(question)],
-        "n_results": min(top_k, collection.count()),
+        "n_results": min(n_candidates, collection.count()),
         "include": ["documents", "metadatas", "distances"],
     }
 
@@ -132,7 +137,7 @@ def retrieve(question: str, top_k: int, domain: str = "all") -> list[Source]:
 
     result = collection.query(**query_arguments)
 
-    return [
+    sources = [
         Source(
             section=metadata.get("section", metadata.get("title", "Section inconnue")),
             doc_id=metadata.get("doc_id", ""),
@@ -151,6 +156,12 @@ def retrieve(question: str, top_k: int, domain: str = "all") -> list[Source]:
         )
     ]
 
+    if not config.RERANK:
+        return sources
+
+    ranked = rerank.rerank(question, [source.model_dump() for source in sources], top_k)
+    return [Source(**source) for source in ranked]
+
 
 @app.get("/health", tags=["Système"])
 def health() -> dict:
@@ -163,6 +174,7 @@ def health() -> dict:
         "indexed_documents": collection.count(),
         "llm_model": config.LLM_MODEL,
         "embedding_model": config.EMBED_MODEL,
+        "rerank": config.RERANK,
         "knowledge_base_path": str(config.KNOWLEDGE_BASE_PATH),
         "orders_tracking_path": str(config.ORDERS_TRACKING_PATH),
     }

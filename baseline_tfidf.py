@@ -9,13 +9,16 @@ base de connaissances du chatbot) et mesure la recherche seule : Hit@k, MRR,
 latence. L'exactitude des réponses et les refus ne sont pas mesurés (pas de LLM).
 
 Usage :
-    python baseline_tfidf.py
+    python baseline_tfidf.py                                  # 30 cas de référence
+    python baseline_tfidf.py --cases data/eval/unseen_cases.json --label baseline_tfidf_inedits
+    python baseline_tfidf.py --rerank --label baseline_tfidf_rerank      # avec rerank.py
 
-Résultats : results/eval_baseline_tfidf.md et .json
+Résultats : results/eval_<label>.md et .json
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import time
 import unicodedata
@@ -27,6 +30,7 @@ from sklearn.metrics.pairwise import linear_kernel
 import config
 import evaluate
 import ingest
+import rerank
 
 
 def strip_accents(text: str) -> str:
@@ -35,6 +39,12 @@ def strip_accents(text: str) -> str:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--cases", default=str(evaluate.DEFAULT_CASES))
+    parser.add_argument("--label", default="baseline_tfidf")
+    parser.add_argument("--rerank", action="store_true", help="applique rerank.py aux candidats")
+    args = parser.parse_args()
+
     ids: list[str] = []
     documents: list[str] = []
     metadatas: list[dict] = []
@@ -50,17 +60,25 @@ def main() -> None:
     )
     matrix = vectorizer.fit_transform(texts)
 
-    cases = json.loads(evaluate.DEFAULT_CASES.read_text(encoding="utf-8"))
+    cases = json.loads(Path(args.cases).read_text(encoding="utf-8"))
     top_k = config.TOP_K
     results = []
 
     for case in cases:
         start = time.perf_counter()
         scores = linear_kernel(vectorizer.transform([case["question"]]), matrix)[0]
-        top = scores.argsort()[::-1][:top_k]
+        if args.rerank:
+            pool = scores.argsort()[::-1][: top_k * rerank.CANDIDATE_FACTOR]
+            candidates = [
+                {"doc_id": doc_ids[i], "document_type": metadatas[i]["document_type"],
+                 "text": documents[i], "score": float(scores[i])}
+                for i in pool
+            ]
+            retrieved = [c["doc_id"] for c in rerank.rerank(case["question"], candidates, top_k)]
+        else:
+            retrieved = [doc_ids[i] for i in scores.argsort()[::-1][:top_k]]
         latency = time.perf_counter() - start
 
-        retrieved = [doc_ids[i] for i in top]
         expected = case["expected_doc_ids"]
         rank = next((i + 1 for i, d in enumerate(retrieved) if d in expected), None)
         result = {
@@ -82,22 +100,23 @@ def main() -> None:
 
     summary = evaluate.summarize(results, retrieval_only=True)
     meta = {
-        "label": "baseline_tfidf",
-        "embed_model": "TF-IDF lexical (sans IA, scikit-learn)",
+        "label": args.label,
+        "embed_model": "TF-IDF lexical (sans IA, scikit-learn)" + (" + reclassement" if args.rerank else ""),
         "llm_model": "aucun",
         "top_k": top_k,
+        "rerank": args.rerank,
         "retrieval_only": True,
         "date": time.strftime("%Y-%m-%d %H:%M"),
         "indexed_documents": len(texts),
     }
 
     evaluate.RESULTS_DIR.mkdir(exist_ok=True)
-    (evaluate.RESULTS_DIR / "eval_baseline_tfidf.json").write_text(
+    (evaluate.RESULTS_DIR / f"eval_{args.label}.json").write_text(
         json.dumps({"meta": meta, "summary": summary, "results": results}, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
-    md_path = evaluate.RESULTS_DIR / "eval_baseline_tfidf.md"
-    evaluate.write_markdown(md_path, "baseline TF-IDF (recherche seule, sans IA)", meta, summary, results)
+    md_path = evaluate.RESULTS_DIR / f"eval_{args.label}.md"
+    evaluate.write_markdown(md_path, f"{args.label} — TF-IDF (recherche seule, sans IA)", meta, summary, results)
     print()
     print(md_path.read_text(encoding="utf-8").split("## Détail")[0])
 

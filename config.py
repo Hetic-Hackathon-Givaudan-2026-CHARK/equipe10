@@ -59,6 +59,10 @@ CHUNK_OVERLAP_PARAGRAPHS = int(
 # -------------------------------------------------------------------
 
 TOP_K = int(os.getenv("TOP_K", "4"))
+
+# Reclassement des résultats (rerank.py) : références exactes et type de
+# question. RERANK=0 pour le désactiver et comparer.
+RERANK = os.getenv("RERANK", "1") != "0"
 # -------------------------------------------------------------------
 # Fichiers du prototype conversationnel
 # -------------------------------------------------------------------

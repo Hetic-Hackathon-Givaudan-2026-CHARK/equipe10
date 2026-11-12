@@ -148,7 +148,8 @@ def write_markdown(path: Path, label: str, meta: dict, summary: dict, results: l
         "",
         f"- Modèle d'embeddings : `{meta['embed_model']}`",
         f"- LLM : `{meta['llm_model']}`" + (" (non utilisé : recherche seule)" if meta["retrieval_only"] else ""),
-        f"- top_k : {meta['top_k']} — cas : {summary['cases']} — date : {meta['date']}",
+        f"- top_k : {meta['top_k']} — reclassement : {'oui' if meta.get('rerank') else 'non'}"
+        f" — cas : {summary['cases']} — date : {meta['date']}",
         "",
         "| Métrique | Valeur | Seuil | Validé |",
         "|---|---|---|---|",
@@ -206,6 +207,7 @@ def main() -> None:
         "embed_model": config.EMBED_MODEL,
         "llm_model": config.LLM_MODEL,
         "top_k": args.top_k,
+        "rerank": config.RERANK,
         "retrieval_only": args.retrieval_only,
         "date": time.strftime("%Y-%m-%d %H:%M"),
     }
