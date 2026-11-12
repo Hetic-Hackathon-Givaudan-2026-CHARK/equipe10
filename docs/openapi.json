@@ -253,6 +253,12 @@
             },
             "type": "array",
             "title": "Sources"
+          },
+          "answer_source": {
+            "type": "string",
+            "title": "Answer Source",
+            "description": "Origine de la réponse : « donnees » (construite directement depuis les données structurées, pour une référence citée ou une demande confidentielle) ou « llm » (rédigée par le modèle).",
+            "default": "llm"
           }
         },
         "type": "object",
