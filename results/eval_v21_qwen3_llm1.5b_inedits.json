@@ -1,0 +1,268 @@
+{
+  "meta": {
+    "label": "v21_qwen3_llm1.5b_inedits",
+    "embed_model": "qwen3-embedding:4b",
+    "llm_model": "qwen2.5:1.5b",
+    "top_k": 4,
+    "rerank": true,
+    "retrieval_only": false,
+    "date": "2026-11-12 21:18"
+  },
+  "summary": {
+    "cases": 10,
+    "answerable_cases": 9,
+    "hits": 9,
+    "errors": 0,
+    "hit_at_k": 1.0,
+    "mrr": 0.9444444444444444,
+    "latency_mean_s": 17.017,
+    "latency_p95_s": 22.661,
+    "answers_ok": 7,
+    "answer_accuracy": 0.7777777777777778,
+    "refusal_accuracy": 1.0,
+    "by_category": {
+      "recommandation": {
+        "n": 2,
+        "hits": 2,
+        "answers_ok": 0
+      },
+      "fiche_produit": {
+        "n": 2,
+        "hits": 2,
+        "answers_ok": 2
+      },
+      "suivi_projet": {
+        "n": 3,
+        "hits": 3,
+        "answers_ok": 3
+      },
+      "commande": {
+        "n": 1,
+        "hits": 1,
+        "answers_ok": 1
+      },
+      "faq": {
+        "n": 1,
+        "hits": 1,
+        "answers_ok": 1
+      }
+    },
+    "validation": {
+      "hit_at_k": true,
+      "mrr": true,
+      "answer_accuracy": false,
+      "refusal_accuracy": true,
+      "latency_mean_s": false
+    },
+    "validated": false
+  },
+  "results": [
+    {
+      "id": "U01",
+      "category": "recommandation",
+      "question": "Avez-vous une fragrance aquatique pour un nettoyant multi-surfaces ?",
+      "expected_doc_ids": [
+        "product_PR-022"
+      ],
+      "retrieved_doc_ids": [
+        "product_PR-022",
+        "product_PR-021",
+        "project_PJ-008",
+        "sample_SMP-013"
+      ],
+      "rank": 1,
+      "answer": "Oui, nous avons la fragrance \"Brise Marine\" pour un nettoyant multi-surfaces. C'est une brise marine avec des notes de sel, algue et bois flotté, idéale pour un nettoyant écologique. C'est une intensité moyenne, naturellement composé à 10% d'origine naturelle, et il est disponible dans les marchés français, espagnols, italiens et allemands.",
+      "latency_s": 20.364,
+      "hit": true,
+      "answer_ok": false,
+      "missing": [
+        [
+          "FRG-106"
+        ]
+      ]
+    },
+    {
+      "id": "U02",
+      "category": "recommandation",
+      "question": "Quel arôme salé conviendrait à des chips ?",
+      "expected_doc_ids": [
+        "product_PR-016"
+      ],
+      "retrieved_doc_ids": [
+        "product_PR-009",
+        "product_PR-016",
+        "knowledge-ARM-005",
+        "product_PR-010"
+      ],
+      "rank": 2,
+      "answer": "Pour des chips, le Caramel Beurre Salé (FLV-209) serait un excellent choix. Il apportera une touche de caramel cuit et de beurre, créant une combinaison salée et sucrée qui sera appréciée. Il est adapté aux chips et aux plats préparés, et son dosage recommandé de 0,10 à 0,30 % s'adaptera bien à vos préférences.",
+      "latency_s": 17.349,
+      "hit": true,
+      "answer_ok": false,
+      "missing": [
+        [
+          "FLV-216"
+        ]
+      ]
+    },
+    {
+      "id": "U03",
+      "category": "fiche_produit",
+      "question": "Quelle est la naturalité de l'arôme Pêche Abricot ?",
+      "expected_doc_ids": [
+        "product_PR-008"
+      ],
+      "retrieved_doc_ids": [
+        "product_PR-008",
+        "faq_naturalite",
+        "product_PR-004",
+        "product_PR-019"
+      ],
+      "rank": 1,
+      "answer": "La naturalité de l'arôme Pêche Abricot est de 100 % naturel.",
+      "latency_s": 14.993,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "U04",
+      "category": "suivi_projet",
+      "question": "Où en est la boisson végétale matcha de la Laiterie des Alpes ?",
+      "expected_doc_ids": [
+        "project_PJ-011"
+      ],
+      "retrieved_doc_ids": [
+        "project_PJ-011",
+        "product_PR-015",
+        "project_PJ-002",
+        "raw_material_RM-010"
+      ],
+      "rank": 1,
+      "answer": "La boisson végétale matcha de la Laiterie des Alpes est en cours de formulation. Le projet de création PJ-011 a été créé le 30 octobre 2026 et est actuellement à la phase de formulation (avancement 25%). La version actuelle est en cours de formulation V1, et la prochaine étape est l'envoi de l'échantillon V1 (date prévue : 24 novembre 2026).",
+      "latency_s": 22.661,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "U05",
+      "category": "suivi_projet",
+      "question": "Quelle note a reçue la première version du nettoyant lavande de Verde Home Care ?",
+      "expected_doc_ids": [
+        "sample_SMP-013",
+        "project_PJ-008"
+      ],
+      "retrieved_doc_ids": [
+        "sample_SMP-013",
+        "project_PJ-008",
+        "sample_SMP-006",
+        "sample_SMP-008"
+      ],
+      "rank": 1,
+      "answer": "La première version du nettoyant lavande de Verde Home Care a reçu une note de 8/10.",
+      "latency_s": 14.54,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "U06",
+      "category": "commande",
+      "question": "La commande ORD-2026-006 est-elle déjà expédiée ?",
+      "expected_doc_ids": [
+        "order_ORD-2026-006"
+      ],
+      "retrieved_doc_ids": [
+        "order_ORD-2026-006",
+        "order_ORD-2026-001",
+        "order_ORD-2026-002",
+        "order_ORD-2026-003"
+      ],
+      "rank": 1,
+      "answer": "La commande ORD-2026-006 n'est pas encore expédiée. Elle est en préparation depuis le 22 octobre 2026 et est prévue pour être livrée le 28 novembre 2026.",
+      "latency_s": 18.246,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "U07",
+      "category": "faq",
+      "question": "Combien coûte un échantillon de 1 kg ?",
+      "expected_doc_ids": [
+        "faq_echantillons",
+        "faq_tarifs"
+      ],
+      "retrieved_doc_ids": [
+        "faq_echantillons",
+        "faq_tarifs",
+        "knowledge-ORD-002",
+        "sample_SMP-009"
+      ],
+      "rank": 1,
+      "answer": "Le coût d'un échantillon de 1 kg est gratuit jusqu'à 2 kg par version. Pour une quantité supérieure, il est facturé au prix catalogue.",
+      "latency_s": 10.653,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "U08",
+      "category": "fiche_produit",
+      "question": "What is the manufacturing lead time of the mint flavour FLV-210?",
+      "expected_doc_ids": [
+        "product_PR-010"
+      ],
+      "retrieved_doc_ids": [
+        "product_PR-010",
+        "product_PR-001",
+        "product_PR-007",
+        "product_PR-002"
+      ],
+      "rank": 1,
+      "answer": "La durée de fabrication du produit FLV-210, Menthe Glaciale, est de 10 jours ouvrés.",
+      "latency_s": 13.67,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "U09",
+      "category": "suivi_projet",
+      "question": "Pourquoi le projet de soda à la cerise a-t-il été arrêté ?",
+      "expected_doc_ids": [
+        "project_PJ-012",
+        "sample_SMP-017"
+      ],
+      "retrieved_doc_ids": [
+        "project_PJ-012",
+        "sample_SMP-017",
+        "project_PJ-009",
+        "project_PJ-006"
+      ],
+      "rank": 1,
+      "answer": "Le projet de soda à la cerise a été arrêté principalement pour des raisons de contraintes et de changement de direction du client. Le client a abandonné sa gamme de sodas, ce qui a conduit à la suppression du projet. Le projet PJ-012 a été annulé en raison de ces changements, et le client a choisi de ne pas poursuivre avec la gamme de sodas.",
+      "latency_s": 23.236,
+      "hit": true,
+      "answer_ok": true,
+      "missing": []
+    },
+    {
+      "id": "U10",
+      "category": "hors_perimetre",
+      "question": "Quel est le numéro de TVA de Northstar Beverages ?",
+      "expected_doc_ids": [],
+      "retrieved_doc_ids": [
+        "client_CL-004",
+        "order_ORD-2026-007",
+        "sample_SMP-017",
+        "project_PJ-012"
+      ],
+      "rank": null,
+      "answer": "Je suis désolé, mais je ne peux pas répondre à cette question car elle ne figure pas dans les extraits fournis.",
+      "latency_s": 14.456,
+      "refusal_ok": true
+    }
+  ]
+}
