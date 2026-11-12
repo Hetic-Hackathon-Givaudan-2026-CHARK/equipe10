@@ -13,38 +13,59 @@ from typing import Literal
 
 import pandas as pd
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 import config
 import rag
+import rerank
 
 
-SYSTEM_PROMPT = """Tu es l'assistant B2B d'une plateforme de commande
-intelligente pour les parfums et les arômes destinés aux produits laitiers.
+SYSTEM_PROMPT = """Tu es l'assistant B2B d'une plateforme qui permet aux entreprises de
+concevoir, personnaliser, tester et commander des fragrances et des arômes alimentaires.
+
+Tu reçois des extraits de la base de la plateforme : catalogue, projets de création,
+échantillons et leurs versions (V1, V2, V3…) avec les retours clients, commandes et
+leur suivi, règles de la plateforme (FAQ).
 
 Règles impératives :
-1. Réponds uniquement à partir des extraits fournis dans le contexte.
-2. N'invente jamais de produit, disponibilité, délai, prix, date de livraison,
-   statut de commande ou information technique.
-3. Si l'information n'est pas présente dans les extraits, réponds exactement :
+1. Lis tous les extraits. Si l'un d'eux répond à la question, même en partie,
+   réponds avec ces informations.
+2. Pour un produit, cite toujours sa référence commerciale (FLV-xxx, FRG-xxx ou
+   ARM-xxx) et son nom, puis explique brièvement pourquoi il correspond au besoin.
+3. Pour une commande, un projet ou un échantillon, cite son identifiant
+   (ORD-…, CMD-…, PJ-…, SMP-…), son statut et les dates utiles.
+4. N'invente jamais rien : ni produit, ni prix, ni délai, ni date, ni statut, ni
+   information technique absents des extraits. Si le produit demandé n'apparaît
+   dans aucun extrait, ne propose pas le prix ou la fiche d'un autre produit.
+5. Si aucun extrait ne permet de répondre, réponds exactement :
    "Information non disponible dans les données fournies."
-4. Réponds dans la langue utilisée dans la question.
-5. Sois professionnel, clair et concis.
-6. Si l'utilisateur souhaite commander ou personnaliser un produit, indique les
+6. Les formules et compositions détaillées sont confidentielles : ne les donne jamais.
+7. Si l'utilisateur souhaite commander ou personnaliser un produit, indique les
    informations à préciser : produit ou profil recherché, application, quantité,
    format, date souhaitée, préférences et contraintes.
-7. Pour une recommandation, propose uniquement les produits réellement présents
-   dans le contexte et explique brièvement pourquoi ils correspondent au besoin.
+8. Réponds dans la langue de la question, en 2 à 4 phrases, de façon professionnelle.
 """
 
 
 app = FastAPI(
     title="Intelligent Ordering Platform RAG API",
     description=(
-        "API RAG de démonstration pour les parfums, les arômes destinés aux "
-        "produits laitiers, les processus de commande et le suivi de commande."
+        "API RAG de démonstration pour les fragrances et les arômes alimentaires : "
+        "catalogue, projets de création, échantillons et rectifications, commandes "
+        "et suivi. Données 100 % fictives. Contrat détaillé : docs/API.md."
     ),
     version="2.0.0",
+)
+
+# Autorise les interfaces web (React, Streamlit…) servies depuis une autre
+# origine à appeler l'API depuis le navigateur. CORS_ORIGINS="*" par défaut ;
+# mettre une liste séparée par des virgules pour restreindre.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=config.CORS_ORIGINS,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["*"],
 )
 
 
@@ -74,6 +95,10 @@ class AskRequest(BaseModel):
 
 class Source(BaseModel):
     section: str
+    doc_id: str = Field(
+        default="",
+        description="Identifiant du document source (ex. product_PR-001, knowledge-FRG-002).",
+    )
     document_type: str
     domain: str
     text: str
@@ -82,6 +107,13 @@ class Source(BaseModel):
             "Score de similarité : plus il est proche de 1, "
             "plus la source est pertinente."
         )
+    )
+    rank_score: float | None = Field(
+        default=None,
+        description=(
+            "Score utilisé pour ordonner les sources : similarité + bonus du "
+            "reclassement (référence citée, type de question). Absent si RERANK=0."
+        ),
     )
 
 
@@ -106,9 +138,13 @@ def retrieve(question: str, top_k: int, domain: str = "all") -> list[Source]:
             ),
         )
 
+    # Avec le reclassement, on examine plus de candidats que top_k puis on
+    # garde les meilleurs après rerank.py (références exactes, type de question).
+    n_candidates = top_k * rerank.CANDIDATE_FACTOR if config.RERANK else top_k
+
     query_arguments = {
         "query_embeddings": [rag.embed_query(question)],
-        "n_results": min(top_k, collection.count()),
+        "n_results": min(n_candidates, collection.count()),
         "include": ["documents", "metadatas", "distances"],
     }
 
@@ -124,9 +160,10 @@ def retrieve(question: str, top_k: int, domain: str = "all") -> list[Source]:
 
     result = collection.query(**query_arguments)
 
-    return [
+    sources = [
         Source(
             section=metadata.get("section", metadata.get("title", "Section inconnue")),
+            doc_id=metadata.get("doc_id", ""),
             document_type=metadata.get(
                 "document_type",
                 metadata.get("record_type", "unknown"),
@@ -142,6 +179,12 @@ def retrieve(question: str, top_k: int, domain: str = "all") -> list[Source]:
         )
     ]
 
+    if not config.RERANK:
+        return sources
+
+    ranked = rerank.rerank(question, [source.model_dump() for source in sources], top_k)
+    return [Source(**source) for source in ranked]
+
 
 @app.get("/health", tags=["Système"])
 def health() -> dict:
@@ -154,6 +197,7 @@ def health() -> dict:
         "indexed_documents": collection.count(),
         "llm_model": config.LLM_MODEL,
         "embedding_model": config.EMBED_MODEL,
+        "rerank": config.RERANK,
         "knowledge_base_path": str(config.KNOWLEDGE_BASE_PATH),
         "orders_tracking_path": str(config.ORDERS_TRACKING_PATH),
     }
@@ -231,31 +275,40 @@ def get_order(order_id: str) -> dict:
     Dans une version réelle, cet endpoint devra être connecté à un système
     de commandes sécurisé et contrôlé par authentification.
     """
-    if not config.ORDERS_TRACKING_PATH.exists():
+    # Deux sources fictives : le suivi du prototype (CMD-2026-xxx) et les
+    # commandes du dataset synthétique (ORD-2026-xxx).
+    sources = [
+        path
+        for path in (config.ORDERS_TRACKING_PATH, config.DATASET_ORDERS_PATH)
+        if path.exists()
+    ]
+
+    if not sources:
         raise HTTPException(
             status_code=503,
             detail="Le fichier de suivi des commandes est introuvable.",
         )
 
-    try:
-        orders_df = pd.read_csv(config.ORDERS_TRACKING_PATH, dtype=str).fillna("")
-    except Exception as exc:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Impossible de lire le fichier de suivi : {exc}",
-        ) from exc
+    for path in sources:
+        try:
+            orders_df = pd.read_csv(path, dtype=str).fillna("")
+        except Exception as exc:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Impossible de lire le fichier de suivi : {exc}",
+            ) from exc
 
-    order = orders_df[
-        orders_df["order_id"].str.upper() == order_id.strip().upper()
-    ]
+        order = orders_df[
+            orders_df["order_id"].str.upper() == order_id.strip().upper()
+        ]
 
-    if order.empty:
-        raise HTTPException(
-            status_code=404,
-            detail="Commande introuvable.",
-        )
+        if not order.empty:
+            return order.iloc[0].to_dict()
 
-    return order.iloc[0].to_dict()
+    raise HTTPException(
+        status_code=404,
+        detail="Commande introuvable.",
+    )
 
 
 if __name__ == "__main__":

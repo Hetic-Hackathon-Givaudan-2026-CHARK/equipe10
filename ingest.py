@@ -1,8 +1,9 @@
 """Ingestion des données dans ChromaDB.
 
 Ce script indexe deux sources :
-1. givaudan_data.txt : dataset synthétique existant (clients, produits,
-   commandes, matières premières et échantillons).
+1. givaudan_data.txt : dataset synthétique généré par generate_dataset.py
+   (catalogue, projets de création, échantillons V1/V2/V3, commandes, FAQ…).
+   Le domaine de chaque document est lu dans data/rag/documents.jsonl.
 2. data/rag_knowledge_base_prototype.csv : base de connaissances du chatbot
    (parfums, arômes laitiers, personnalisation, FAQ et processus de commande).
 
@@ -15,6 +16,7 @@ Usage :
 
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 
@@ -22,6 +24,8 @@ import pandas as pd
 
 import config
 import rag
+
+DOCUMENTS_JSONL = config.BASE_DIR / "data" / "rag" / "documents.jsonl"
 
 
 # Reconnaît les sections générées dans givaudan_data.txt :
@@ -45,12 +49,16 @@ def split_into_sections(text: str) -> tuple[str, list[tuple[str, list[str]]]]:
     current_paragraphs: list[str] = []
 
     for paragraph in paragraphs:
-        if SECTION_RE.match(paragraph) and len(paragraph) < 150:
+        # Le titre de section peut être seul dans son paragraphe ou suivi
+        # directement du texte sur la ligne suivante (format de
+        # generate_dataset.py : "Chapter 1: client_CL-001\nCLIENT | ...").
+        first_line, _, rest = paragraph.partition("\n")
+        if SECTION_RE.match(first_line) and len(first_line) < 150:
             if current_paragraphs:
                 sections.append((current_title, current_paragraphs))
 
-            current_title = paragraph
-            current_paragraphs = []
+            current_title = first_line.strip()
+            current_paragraphs = [rest.strip()] if rest.strip() else []
         else:
             current_paragraphs.append(paragraph)
 
@@ -89,20 +97,38 @@ def chunk_paragraphs(paragraphs: list[str]) -> list[str]:
 
 def get_document_type(section_title: str) -> str:
     """Identifie le type métier depuis le titre d'une section."""
-    title = section_title.lower()
+    doc_id = get_doc_id(section_title)
 
-    if "client_" in title:
-        return "client"
-    if "product_" in title:
-        return "product"
-    if "raw_material_" in title:
-        return "raw_material"
-    if "order_" in title:
-        return "order"
-    if "sample_" in title:
-        return "sample"
+    for prefix, document_type in (
+        ("client_", "client"),
+        ("product_", "product"),
+        ("raw_material_", "raw_material"),
+        ("project_", "project"),
+        ("sample_", "sample"),
+        ("order_", "order"),
+        ("faq_", "faq"),
+    ):
+        if doc_id.startswith(prefix):
+            return document_type
 
     return "unknown"
+
+
+def get_doc_id(section_title: str) -> str:
+    """'Chapter 12: product_PR-001' -> 'product_PR-001'."""
+    return section_title.split(":", 1)[-1].strip()
+
+
+def load_dataset_domains() -> dict[str, str]:
+    """Domaine de chaque document généré, lu dans data/rag/documents.jsonl."""
+    if not DOCUMENTS_JSONL.exists():
+        return {}
+    domains = {}
+    for line in DOCUMENTS_JSONL.read_text(encoding="utf-8").splitlines():
+        if line.strip():
+            document = json.loads(line)
+            domains[document["id"]] = document["metadata"].get("domain", "shared")
+    return domains
 
 
 def add_existing_dataset(
@@ -118,9 +144,11 @@ def add_existing_dataset(
 
     text = source_path.read_text(encoding="utf-8")
     dataset_title, sections = split_into_sections(text)
+    domains = load_dataset_domains()
 
     for section_index, (section_title, paragraphs) in enumerate(sections):
         document_type = get_document_type(section_title)
+        doc_id = get_doc_id(section_title)
 
         for chunk_index, chunk in enumerate(chunk_paragraphs(paragraphs)):
             document_id = (
@@ -137,9 +165,10 @@ def add_existing_dataset(
                     "title": section_title,
                     "document_type": document_type,
                     "record_type": document_type,
-                    # Les informations existantes restent accessibles depuis
-                    # les deux domaines lorsque l'application filtre une recherche.
-                    "domain": "shared",
+                    "doc_id": doc_id,
+                    # fragrance / dairy_aroma selon le produit concerné ; shared
+                    # pour les contenus communs (clients, FAQ…), toujours visibles.
+                    "domain": domains.get(doc_id, "shared"),
                     "category": "",
                     "tags": "",
                     "section_index": section_index,
@@ -205,6 +234,7 @@ def add_knowledge_base(
             "sub_category": value_as_string(row.get("sub_category", "")),
             "application": value_as_string(row.get("application", "")),
             "tags": value_as_string(row.get("tags", "")),
+            "doc_id": f"knowledge-{record_id}",
         }
 
         ids.append(f"knowledge-{record_id}")

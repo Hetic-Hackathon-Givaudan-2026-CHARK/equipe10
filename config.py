@@ -19,13 +19,16 @@ BASE_DIR = Path(__file__).resolve().parent
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 
 # Modèle qui rédige la réponse RAG.
-LLM_MODEL = os.getenv("LLM_MODEL", "qwen2.5:1.5b")
+LLM_MODEL = os.getenv("LLM_MODEL", "qwen2.5:3b")
+
+# Longueur maximale d'une réponse (en tokens) : limite la latence sur CPU.
+MAX_ANSWER_TOKENS = int(os.getenv("MAX_ANSWER_TOKENS", "300"))
 
 # Baseline initiale. Plus tard, le benchmark comparera notamment :
 # - nomic-embed-text
 # - qwen3-embedding:0.6b
 # - qwen3-embedding:4b
-EMBED_MODEL = os.getenv("EMBED_MODEL", "nomic-embed-text")
+EMBED_MODEL = os.getenv("EMBED_MODEL", "qwen3-embedding:4b")
 
 
 # -------------------------------------------------------------------
@@ -45,9 +48,6 @@ DATASET_PATH = Path(
     os.getenv("DATASET_PATH", str(BASE_DIR / "givaudan_data.txt"))
 )
 
-# STORY_PATH est conservé pour rester compatible avec l'ancien pipeline.
-STORY_PATH = DATASET_PATH
-
 # Taille maximale d'un morceau de texte indexé.
 CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "800"))
 
@@ -62,6 +62,13 @@ CHUNK_OVERLAP_PARAGRAPHS = int(
 # -------------------------------------------------------------------
 
 TOP_K = int(os.getenv("TOP_K", "4"))
+
+# Reclassement des résultats (rerank.py) : références exactes et type de
+# question. RERANK=0 pour le désactiver et comparer.
+RERANK = os.getenv("RERANK", "1") != "0"
+
+# Origines web autorisées à appeler l'API (CORS), séparées par des virgules.
+CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "*").split(",") if o.strip()]
 # -------------------------------------------------------------------
 # Fichiers du prototype conversationnel
 # -------------------------------------------------------------------
@@ -83,3 +90,14 @@ ORDERS_TRACKING_PATH = Path(
         str(BASE_DIR / "data" / "orders_tracking_prototype.csv"),
     )
 )
+
+# Commandes du dataset synthétique (ORD-2026-xxx), générées par
+# generate_dataset.py au même format que ORDERS_TRACKING_PATH.
+# Également consultées par GET /orders/{order_id}.
+DATASET_ORDERS_PATH = Path(
+    os.getenv(
+        "DATASET_ORDERS_PATH",
+        str(BASE_DIR / "data" / "orders_tracking_dataset.csv"),
+    )
+)
+
