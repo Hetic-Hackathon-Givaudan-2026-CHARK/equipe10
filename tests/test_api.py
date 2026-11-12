@@ -25,7 +25,7 @@ def test_demo_ping(client):
 def test_search_renvoie_les_champs_du_contrat(client):
     sources = client.post("/search", json={"question": "arôme mangue boisson protéinée"}).json()
     assert len(sources) == 4
-    assert set(sources[0]) == {"section", "doc_id", "document_type", "domain", "text", "score", "rank_score"}
+    assert set(sources[0]) == {"section", "doc_id", "document_type", "domain", "text", "score", "metadata", "rank_score"}
     # L'ordre des sources suit rank_score (similarité + bonus du reclassement).
     assert [s["rank_score"] for s in sources] == sorted((s["rank_score"] for s in sources), reverse=True)
 
@@ -85,3 +85,18 @@ def test_ask_reponse_directe(client):
     body = client.post("/ask", json={"question": "Quel est le statut de la commande ORD-2026-007 ?"}).json()
     assert body["answer_source"] == "donnees"
     assert "Expédiée" in body["answer"] and body["sources"][0]["doc_id"] == "order_ORD-2026-007"
+
+
+def test_metadonnees_metier_dans_les_sources(client):
+    sources = client.post("/search", json={"question": "Quel est le statut de la commande ORD-2026-007 ?"}).json()
+    order = sources[0]["metadata"]
+    assert order["order_id"] == "ORD-2026-007" and order["client_id"] == "CL-004"
+    assert order["reference"] == "FLV-212" and order["status"] == "Expédiée"
+    assert order["amount_eur"] == 95040.0 and order["delivery_date"] == "2026-11-16"
+    assert "chunk_index" not in order
+
+    product = client.post("/search", json={"question": "Prix de FRG-108 ?"}).json()[0]["metadata"]
+    assert product["reference"] == "FRG-108" and product["price_eur_kg"] == 145 and product["moq_kg"] == 2
+
+    project = client.post("/search", json={"question": "Où en est le projet PJ-003 ?"}).json()[0]["metadata"]
+    assert project["project_id"] == "PJ-003" and project["stage"] == "Rectification" and project["progress_pct"] == 60

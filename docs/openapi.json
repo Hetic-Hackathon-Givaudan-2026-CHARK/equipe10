@@ -313,6 +313,27 @@
             "title": "Score",
             "description": "Score de similarité : plus il est proche de 1, plus la source est pertinente."
           },
+          "metadata": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "boolean"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Metadata",
+            "description": "Métadonnées du document : identifiants (product_id, client_id, project_id, sample_id, order_id), référence, nom, statut, dates, montants… selon son type."
+          },
           "rank_score": {
             "anyOf": [
               {

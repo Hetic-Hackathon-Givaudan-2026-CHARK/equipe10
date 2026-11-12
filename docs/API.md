@@ -79,6 +79,13 @@ Les valeurs de `score` et `rank_score` ci-dessous sont illustratives.
     "domain": "dairy_aroma",
     "text": "COMMANDE | ORD-2026-007 de Northstar Beverages (CL-004), issue du projet PJ-009 …",
     "score": 0.62,
+    "metadata": {
+      "source": "givaudan_data.txt", "record_type": "order", "doc_id": "order_ORD-2026-007",
+      "order_id": "ORD-2026-007", "client_id": "CL-004", "client_name": "Northstar Beverages",
+      "product_id": "PR-012", "reference": "FLV-212", "project_id": "PJ-009",
+      "status": "Expédiée", "order_date": "2026-09-20", "delivery_date": "2026-11-16",
+      "quantity_kg": 1200, "amount_eur": 95040.0
+    },
     "rank_score": 1.22
   }
 ]
@@ -90,7 +97,24 @@ Les valeurs de `score` et `rank_score` ci-dessous sont illustratives.
 | `document_type` | `product`, `project`, `sample`, `order`, `client`, `raw_material`, `faq`, ou pour la base du chatbot `capability`, `process`, `policy` |
 | `domain` | `fragrance`, `dairy_aroma` ou `shared` |
 | `score` | similarité avec la question (0 à 1) |
+| `metadata` | métadonnées métier du document, selon son type (voir ci-dessous) |
 | `rank_score` | valeur utilisée pour l'ordre des sources (similarité + bonus du reclassement) ; absent si `RERANK=0` |
+
+#### Métadonnées par type de document (`metadata`)
+
+| `document_type` | Champs |
+|---|---|
+| `product` | `product_id`, `reference` (FLV-/FRG-), `name`, `family`, `intensity`, `naturalness`, `price_eur_kg`, `moq_kg`, `lead_time_days`, `status` |
+| `project` | `project_id`, `client_id`, `client_name`, `project_title`, `product_type`, `reference`, `stage`, `progress_pct`, `current_version`, `next_step_date` |
+| `sample` | `sample_id`, `project_id`, `client_id`, `client_name`, `version`, `sent_date`, `decision`, `score_10` |
+| `order` | `order_id`, `client_id`, `client_name`, `product_id`, `reference`, `project_id`, `status`, `order_date`, `delivery_date`, `quantity_kg`, `amount_eur` |
+| `client` | `client_id`, `client_name`, `country`, `industry`, `segment` |
+| `raw_material` | `raw_material_id`, `reference`, `name`, `origin` |
+| `faq` | `faq_title` |
+| base de connaissances du chatbot | `title`, `category`, `sub_category`, `application`, `tags` |
+
+Tous les documents ont aussi `source`, `section`, `title`, `document_type`, `record_type`,
+`doc_id` et `domain`. Un champ vide n'est pas renvoyé.
 
 ### `GET /orders/{order_id}` — sortie
 

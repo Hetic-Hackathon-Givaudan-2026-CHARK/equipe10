@@ -119,16 +119,25 @@ def get_doc_id(section_title: str) -> str:
     return section_title.split(":", 1)[-1].strip()
 
 
-def load_dataset_domains() -> dict[str, str]:
-    """Domaine de chaque document généré, lu dans data/rag/documents.jsonl."""
+def load_dataset_metadata() -> dict[str, dict]:
+    """Métadonnées métier de chaque document généré (data/rag/documents.jsonl).
+
+    Identifiants (produit, client, projet, échantillon, commande), référence,
+    nom, statut, dates, montants… ChromaDB n'accepte que des valeurs simples :
+    les valeurs vides ou None sont ignorées.
+    """
     if not DOCUMENTS_JSONL.exists():
         return {}
-    domains = {}
+    metadata = {}
     for line in DOCUMENTS_JSONL.read_text(encoding="utf-8").splitlines():
         if line.strip():
             document = json.loads(line)
-            domains[document["id"]] = document["metadata"].get("domain", "shared")
-    return domains
+            metadata[document["id"]] = {
+                key: value
+                for key, value in document["metadata"].items()
+                if value not in (None, "") and isinstance(value, (str, int, float, bool))
+            }
+    return metadata
 
 
 def add_existing_dataset(
@@ -144,11 +153,13 @@ def add_existing_dataset(
 
     text = source_path.read_text(encoding="utf-8")
     dataset_title, sections = split_into_sections(text)
-    domains = load_dataset_domains()
+    dataset_metadata = load_dataset_metadata()
 
     for section_index, (section_title, paragraphs) in enumerate(sections):
         document_type = get_document_type(section_title)
         doc_id = get_doc_id(section_title)
+        business = dict(dataset_metadata.get(doc_id, {}))
+        business.pop("type", None)
 
         for chunk_index, chunk in enumerate(chunk_paragraphs(paragraphs)):
             document_id = (
@@ -168,11 +179,12 @@ def add_existing_dataset(
                     "doc_id": doc_id,
                     # fragrance / dairy_aroma selon le produit concerné ; shared
                     # pour les contenus communs (clients, FAQ…), toujours visibles.
-                    "domain": domains.get(doc_id, "shared"),
+                    "domain": business.pop("domain", "shared"),
                     "category": "",
                     "tags": "",
                     "section_index": section_index,
                     "chunk_index": chunk_index,
+                    **business,
                 }
             )
 
