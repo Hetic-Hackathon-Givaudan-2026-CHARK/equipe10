@@ -1,8 +1,10 @@
 """Configuration partagée de la plateforme de commande intelligente.
 
 Les paramètres peuvent être surchargés par des variables d'environnement.
-Exemple :
+
+Exemples :
     EMBED_MODEL=qwen3-embedding:4b
+    COLLECTION_NAME=taste_fragrance_rag_v2_qwen3_4b
 """
 
 import os
@@ -16,31 +18,38 @@ BASE_DIR = Path(__file__).resolve().parent
 # Ollama
 # -------------------------------------------------------------------
 
+# URL du serveur Ollama utilisé pour les embeddings et la génération.
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 
-# Modèle qui rédige la réponse RAG.
+# Modèle génératif : rédige la réponse finale à partir des sources RAG.
 LLM_MODEL = os.getenv("LLM_MODEL", "qwen2.5:1.5b")
 
-# Baseline initiale. Plus tard, le benchmark comparera notamment :
-# - nomic-embed-text
-# - qwen3-embedding:0.6b
-# - qwen3-embedding:4b
-EMBED_MODEL = os.getenv("EMBED_MODEL", "nomic-embed-text")
+# Modèle d'embeddings sélectionné pour la V2.
+# Il sera comparé à la baseline V1 dans le protocole d'évaluation.
+EMBED_MODEL = os.getenv("EMBED_MODEL", "qwen3-embedding:4b")
 
 
 # -------------------------------------------------------------------
 # ChromaDB
 # -------------------------------------------------------------------
 
+# Répertoire local persistant de ChromaDB.
 CHROMA_DIR = Path(os.getenv("CHROMA_DIR", str(BASE_DIR / "chroma_db")))
-COLLECTION_NAME = os.getenv("COLLECTION_NAME", "intelligent_ordering_rag")
+
+# Collection dédiée à la V2.
+# Elle isole l index V2 de l ancien index afin de garantir une évaluation reproductible.
+COLLECTION_NAME = os.getenv(
+    "COLLECTION_NAME",
+    "taste_fragrance_rag_v2_qwen3_4b",
+)
 
 
 # -------------------------------------------------------------------
 # Dataset et découpage
 # -------------------------------------------------------------------
 
-# Corpus synthétique généré par generate_dataset.py.
+# Corpus synthétique historique généré par generate_dataset.py.
+# Ses contenus seront marqués comme "shared" dans l'ingestion.
 DATASET_PATH = Path(
     os.getenv("DATASET_PATH", str(BASE_DIR / "givaudan_data.txt"))
 )
@@ -58,25 +67,27 @@ CHUNK_OVERLAP_PARAGRAPHS = int(
 
 
 # -------------------------------------------------------------------
-# Recherche
+# Recherche RAG
 # -------------------------------------------------------------------
 
+# Nombre de documents récupérés par défaut.
 TOP_K = int(os.getenv("TOP_K", "4"))
+
+
 # -------------------------------------------------------------------
 # Fichiers du prototype conversationnel
 # -------------------------------------------------------------------
 
-# Base de connaissances RAG : produits, suggestions, personnalisation,
-# FAQ et processus de commande.
+# Base V2 : Taste & Wellbeing, Fragrance & Beauty et contenus partagés.
 KNOWLEDGE_BASE_PATH = Path(
     os.getenv(
         "KNOWLEDGE_BASE_PATH",
-        str(BASE_DIR / "data" / "rag_knowledge_base_prototype.csv"),
+        str(BASE_DIR / "data" / "taste_fragrance_knowledge_base.csv"),
     )
 )
 
-# Données fictives de suivi de commandes. Elles ne doivent pas être
-# indexées dans ChromaDB : elles sont consultées directement par l'API.
+# Données fictives de suivi de commandes.
+# Elles ne sont pas indexées dans ChromaDB : l'API les lit directement.
 ORDERS_TRACKING_PATH = Path(
     os.getenv(
         "ORDERS_TRACKING_PATH",
