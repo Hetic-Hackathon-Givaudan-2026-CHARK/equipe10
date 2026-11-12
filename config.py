@@ -21,6 +21,9 @@ OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 # Modèle qui rédige la réponse RAG.
 LLM_MODEL = os.getenv("LLM_MODEL", "qwen2.5:1.5b")
 
+# Longueur maximale d'une réponse (en tokens) : limite la latence sur CPU.
+MAX_ANSWER_TOKENS = int(os.getenv("MAX_ANSWER_TOKENS", "300"))
+
 # Baseline initiale. Plus tard, le benchmark comparera notamment :
 # - nomic-embed-text
 # - qwen3-embedding:0.6b
