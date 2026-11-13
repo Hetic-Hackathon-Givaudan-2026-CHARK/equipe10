@@ -1,5 +1,6 @@
 """Ingestion des données dans ChromaDB.
 
+
 Ce script indexe deux sources :
 1. givaudan_data.txt : dataset synthétique généré par generate_dataset.py
    (catalogue, projets de création, échantillons V1/V2/V3, commandes, FAQ…).
