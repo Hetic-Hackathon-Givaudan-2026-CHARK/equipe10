@@ -1,5 +1,6 @@
 """Évaluation du modèle RAG sur les 30 cas de référence.
 
+
 Le script passe chaque question de data/eval/reference_cases.json dans le
 même pipeline que l'API (recherche ChromaDB + réponse du LLM) et calcule :
 
