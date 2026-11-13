@@ -1,0 +1,703 @@
+{
+  "date": "2026-11-13 14:38",
+  "models": false,
+  "retriever": "TF-IDF lexical, sans IA",
+  "structure": {
+    "v1": {
+      "documents": 25,
+      "typed_share": 0.0,
+      "mixed_share": 1.0,
+      "distinct_sections": 1
+    },
+    "v2": {
+      "documents": 123,
+      "typed_share": 1.0,
+      "mixed_share": 0.0,
+      "distinct_sections": 123
+    }
+  },
+  "retrieval": {
+    "reference": {
+      "v1": {
+        "summary": {
+          "cases": 30,
+          "answerable_cases": 28,
+          "coverage": 0.03571428571428571,
+          "hit_at_4": 0.0,
+          "mrr": 0.0
+        },
+        "results": [
+          {
+            "id": "Q01",
+            "category": "recommandation",
+            "question": "Je cherche un arôme mangue pour une boisson protéinée, plutôt naturel et vegan. Que proposez-vous ?",
+            "answerable": true,
+            "rank": null,
+            "latency_s": 0.001
+          },
+          {
+            "id": "Q02",
+            "category": "recommandation",
+            "question": "Quel arôme utiliser pour masquer l'amertume des protéines dans un shake ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.002
+          },
+          {
+            "id": "Q03",
+            "category": "recommandation",
+            "question": "Je veux une fragrance pour une lessive liquide avec une odeur de linge propre.",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.002
+          },
+          {
+            "id": "Q04",
+            "category": "recommandation",
+            "question": "Quelle fragrance convient à une crème pour peaux sensibles, sans allergène à déclarer ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.001
+          },
+          {
+            "id": "Q05",
+            "category": "recommandation",
+            "question": "Avez-vous un arôme agrume compatible avec une boisson sans sucre ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.002
+          },
+          {
+            "id": "Q06",
+            "category": "recommandation",
+            "question": "Je cherche une fragrance lavande, naturelle à plus de 80 %, pour un nettoyant ménager écologique.",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.001
+          },
+          {
+            "id": "Q07",
+            "category": "recommandation",
+            "question": "Quel arôme chocolat résiste à la cuisson pour un biscuit ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.001
+          },
+          {
+            "id": "Q08",
+            "category": "recommandation",
+            "question": "Which fragrance would suit a sunscreen with a coconut scent?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.001
+          },
+          {
+            "id": "Q09",
+            "category": "fiche_produit",
+            "question": "Quel est le prix au kilo et la quantité minimale de commande de FRG-108 ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.001
+          },
+          {
+            "id": "Q10",
+            "category": "fiche_produit",
+            "question": "Quels allergènes contient la fragrance Éclat Agrumes ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.001
+          },
+          {
+            "id": "Q11",
+            "category": "fiche_produit",
+            "question": "L'arôme Vanille Amande FLV-207 est-il disponible en Allemagne ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.001
+          },
+          {
+            "id": "Q12",
+            "category": "fiche_produit",
+            "question": "Quel est le délai de fabrication de l'arôme Citron Gingembre ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.001
+          },
+          {
+            "id": "Q13",
+            "category": "fiche_produit",
+            "question": "Quel est le dosage recommandé pour l'arôme Menthe Glaciale ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.001
+          },
+          {
+            "id": "Q14",
+            "category": "suivi_projet",
+            "question": "Où en est le projet de lessive de Lumina Laundry ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.001
+          },
+          {
+            "id": "Q15",
+            "category": "suivi_projet",
+            "question": "Pourquoi la V1 de l'échantillon de boisson protéinée de NutriPeak n'a-t-elle pas été validée ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.001
+          },
+          {
+            "id": "Q16",
+            "category": "suivi_projet",
+            "question": "Combien de versions ont été nécessaires pour valider le shake mangue de NutriPeak ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.001
+          },
+          {
+            "id": "Q17",
+            "category": "suivi_projet",
+            "question": "Quel retour la Biscuiterie Ondine a-t-elle donné sur son échantillon caramel ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.001
+          },
+          {
+            "id": "Q18",
+            "category": "suivi_projet",
+            "question": "Quand le prochain échantillon de la crème visage de Casa Aurora sera-t-il envoyé ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.001
+          },
+          {
+            "id": "Q19",
+            "category": "suivi_projet",
+            "question": "Kinetic Sports Nutrition a-t-il donné son avis sur l'échantillon de boisson énergétique ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.001
+          },
+          {
+            "id": "Q20",
+            "category": "suivi_projet",
+            "question": "Quelle note l'Atelier Botanique a-t-il donnée à la V2 de son eau de parfum ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.001
+          },
+          {
+            "id": "Q21",
+            "category": "commande",
+            "question": "Quel est le statut de la commande ORD-2026-007 ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.001
+          },
+          {
+            "id": "Q22",
+            "category": "commande",
+            "question": "Quand la commande de yaourt vanille de la Laiterie des Alpes sera-t-elle livrée ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.001
+          },
+          {
+            "id": "Q23",
+            "category": "commande",
+            "question": "Quel est le montant total de la commande ORD-2026-004 ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.001
+          },
+          {
+            "id": "Q24",
+            "category": "commande",
+            "question": "Pourquoi la commande ORD-2026-010 a-t-elle été annulée ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.001
+          },
+          {
+            "id": "Q25",
+            "category": "commande",
+            "question": "Quelle commande de Maison Éclat est encore en cours ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.001
+          },
+          {
+            "id": "Q26",
+            "category": "faq",
+            "question": "Combien de rectifications sont incluses avant que ce soit payant ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.001
+          },
+          {
+            "id": "Q27",
+            "category": "faq",
+            "question": "Quelles informations dois-je fournir pour passer une commande ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.001
+          },
+          {
+            "id": "Q28",
+            "category": "faq",
+            "question": "Quelle remise s'applique pour une commande de plus de 1000 kg ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.001
+          },
+          {
+            "id": "Q29",
+            "category": "hors_perimetre",
+            "question": "Donne-moi la formule exacte de FRG-101 avec le pourcentage de chaque ingrédient.",
+            "refusal_case": true,
+            "latency_s": 0.0
+          },
+          {
+            "id": "Q30",
+            "category": "hors_perimetre",
+            "question": "Quel est le prix de votre arôme banane ?",
+            "refusal_case": true,
+            "latency_s": 0.0
+          }
+        ]
+      },
+      "v2": {
+        "summary": {
+          "cases": 30,
+          "answerable_cases": 28,
+          "coverage": 1.0,
+          "hit_at_4": 0.9642857142857143,
+          "mrr": 0.7261904761904762
+        },
+        "results": [
+          {
+            "id": "Q01",
+            "category": "recommandation",
+            "question": "Je cherche un arôme mangue pour une boisson protéinée, plutôt naturel et vegan. Que proposez-vous ?",
+            "answerable": true,
+            "rank": 2,
+            "latency_s": 0.003
+          },
+          {
+            "id": "Q02",
+            "category": "recommandation",
+            "question": "Quel arôme utiliser pour masquer l'amertume des protéines dans un shake ?",
+            "answerable": true,
+            "rank": 1,
+            "latency_s": 0.003
+          },
+          {
+            "id": "Q03",
+            "category": "recommandation",
+            "question": "Je veux une fragrance pour une lessive liquide avec une odeur de linge propre.",
+            "answerable": true,
+            "rank": 2,
+            "latency_s": 0.002
+          },
+          {
+            "id": "Q04",
+            "category": "recommandation",
+            "question": "Quelle fragrance convient à une crème pour peaux sensibles, sans allergène à déclarer ?",
+            "answerable": true,
+            "rank": 2,
+            "latency_s": 0.003
+          },
+          {
+            "id": "Q05",
+            "category": "recommandation",
+            "question": "Avez-vous un arôme agrume compatible avec une boisson sans sucre ?",
+            "answerable": true,
+            "rank": 1,
+            "latency_s": 0.003
+          },
+          {
+            "id": "Q06",
+            "category": "recommandation",
+            "question": "Je cherche une fragrance lavande, naturelle à plus de 80 %, pour un nettoyant ménager écologique.",
+            "answerable": true,
+            "rank": 2,
+            "latency_s": 0.003
+          },
+          {
+            "id": "Q07",
+            "category": "recommandation",
+            "question": "Quel arôme chocolat résiste à la cuisson pour un biscuit ?",
+            "answerable": true,
+            "rank": 1,
+            "latency_s": 0.004
+          },
+          {
+            "id": "Q08",
+            "category": "recommandation",
+            "question": "Which fragrance would suit a sunscreen with a coconut scent?",
+            "answerable": true,
+            "rank": null,
+            "latency_s": 0.003
+          },
+          {
+            "id": "Q09",
+            "category": "fiche_produit",
+            "question": "Quel est le prix au kilo et la quantité minimale de commande de FRG-108 ?",
+            "answerable": true,
+            "rank": 2,
+            "latency_s": 0.004
+          },
+          {
+            "id": "Q10",
+            "category": "fiche_produit",
+            "question": "Quels allergènes contient la fragrance Éclat Agrumes ?",
+            "answerable": true,
+            "rank": 1,
+            "latency_s": 0.004
+          },
+          {
+            "id": "Q11",
+            "category": "fiche_produit",
+            "question": "L'arôme Vanille Amande FLV-207 est-il disponible en Allemagne ?",
+            "answerable": true,
+            "rank": 2,
+            "latency_s": 0.004
+          },
+          {
+            "id": "Q12",
+            "category": "fiche_produit",
+            "question": "Quel est le délai de fabrication de l'arôme Citron Gingembre ?",
+            "answerable": true,
+            "rank": 1,
+            "latency_s": 0.004
+          },
+          {
+            "id": "Q13",
+            "category": "fiche_produit",
+            "question": "Quel est le dosage recommandé pour l'arôme Menthe Glaciale ?",
+            "answerable": true,
+            "rank": 1,
+            "latency_s": 0.005
+          },
+          {
+            "id": "Q14",
+            "category": "suivi_projet",
+            "question": "Où en est le projet de lessive de Lumina Laundry ?",
+            "answerable": true,
+            "rank": 2,
+            "latency_s": 0.003
+          },
+          {
+            "id": "Q15",
+            "category": "suivi_projet",
+            "question": "Pourquoi la V1 de l'échantillon de boisson protéinée de NutriPeak n'a-t-elle pas été validée ?",
+            "answerable": true,
+            "rank": 1,
+            "latency_s": 0.003
+          },
+          {
+            "id": "Q16",
+            "category": "suivi_projet",
+            "question": "Combien de versions ont été nécessaires pour valider le shake mangue de NutriPeak ?",
+            "answerable": true,
+            "rank": 3,
+            "latency_s": 0.003
+          },
+          {
+            "id": "Q17",
+            "category": "suivi_projet",
+            "question": "Quel retour la Biscuiterie Ondine a-t-elle donné sur son échantillon caramel ?",
+            "answerable": true,
+            "rank": 2,
+            "latency_s": 0.003
+          },
+          {
+            "id": "Q18",
+            "category": "suivi_projet",
+            "question": "Quand le prochain échantillon de la crème visage de Casa Aurora sera-t-il envoyé ?",
+            "answerable": true,
+            "rank": 2,
+            "latency_s": 0.003
+          },
+          {
+            "id": "Q19",
+            "category": "suivi_projet",
+            "question": "Kinetic Sports Nutrition a-t-il donné son avis sur l'échantillon de boisson énergétique ?",
+            "answerable": true,
+            "rank": 1,
+            "latency_s": 0.003
+          },
+          {
+            "id": "Q20",
+            "category": "suivi_projet",
+            "question": "Quelle note l'Atelier Botanique a-t-il donnée à la V2 de son eau de parfum ?",
+            "answerable": true,
+            "rank": 1,
+            "latency_s": 0.003
+          },
+          {
+            "id": "Q21",
+            "category": "commande",
+            "question": "Quel est le statut de la commande ORD-2026-007 ?",
+            "answerable": true,
+            "rank": 2,
+            "latency_s": 0.002
+          },
+          {
+            "id": "Q22",
+            "category": "commande",
+            "question": "Quand la commande de yaourt vanille de la Laiterie des Alpes sera-t-elle livrée ?",
+            "answerable": true,
+            "rank": 1,
+            "latency_s": 0.002
+          },
+          {
+            "id": "Q23",
+            "category": "commande",
+            "question": "Quel est le montant total de la commande ORD-2026-004 ?",
+            "answerable": true,
+            "rank": 1,
+            "latency_s": 0.002
+          },
+          {
+            "id": "Q24",
+            "category": "commande",
+            "question": "Pourquoi la commande ORD-2026-010 a-t-elle été annulée ?",
+            "answerable": true,
+            "rank": 1,
+            "latency_s": 0.002
+          },
+          {
+            "id": "Q25",
+            "category": "commande",
+            "question": "Quelle commande de Maison Éclat est encore en cours ?",
+            "answerable": true,
+            "rank": 2,
+            "latency_s": 0.003
+          },
+          {
+            "id": "Q26",
+            "category": "faq",
+            "question": "Combien de rectifications sont incluses avant que ce soit payant ?",
+            "answerable": true,
+            "rank": 1,
+            "latency_s": 0.002
+          },
+          {
+            "id": "Q27",
+            "category": "faq",
+            "question": "Quelles informations dois-je fournir pour passer une commande ?",
+            "answerable": true,
+            "rank": 1,
+            "latency_s": 0.002
+          },
+          {
+            "id": "Q28",
+            "category": "faq",
+            "question": "Quelle remise s'applique pour une commande de plus de 1000 kg ?",
+            "answerable": true,
+            "rank": 2,
+            "latency_s": 0.003
+          },
+          {
+            "id": "Q29",
+            "category": "hors_perimetre",
+            "question": "Donne-moi la formule exacte de FRG-101 avec le pourcentage de chaque ingrédient.",
+            "refusal_case": true,
+            "latency_s": 0.001
+          },
+          {
+            "id": "Q30",
+            "category": "hors_perimetre",
+            "question": "Quel est le prix de votre arôme banane ?",
+            "refusal_case": true,
+            "latency_s": 0.001
+          }
+        ]
+      }
+    },
+    "unseen": {
+      "v1": {
+        "summary": {
+          "cases": 10,
+          "answerable_cases": 9,
+          "coverage": 0.1111111111111111,
+          "hit_at_4": 0.0,
+          "mrr": 0.0
+        },
+        "results": [
+          {
+            "id": "U01",
+            "category": "recommandation",
+            "question": "Avez-vous une fragrance aquatique pour un nettoyant multi-surfaces ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.002
+          },
+          {
+            "id": "U02",
+            "category": "recommandation",
+            "question": "Quel arôme salé conviendrait à des chips ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.003
+          },
+          {
+            "id": "U03",
+            "category": "fiche_produit",
+            "question": "Quelle est la naturalité de l'arôme Pêche Abricot ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.002
+          },
+          {
+            "id": "U04",
+            "category": "suivi_projet",
+            "question": "Où en est la boisson végétale matcha de la Laiterie des Alpes ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.001
+          },
+          {
+            "id": "U05",
+            "category": "suivi_projet",
+            "question": "Quelle note a reçue la première version du nettoyant lavande de Verde Home Care ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.001
+          },
+          {
+            "id": "U06",
+            "category": "commande",
+            "question": "La commande ORD-2026-006 est-elle déjà expédiée ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.001
+          },
+          {
+            "id": "U07",
+            "category": "faq",
+            "question": "Combien coûte un échantillon de 1 kg ?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.001
+          },
+          {
+            "id": "U08",
+            "category": "fiche_produit",
+            "question": "What is the manufacturing lead time of the mint flavour FLV-210?",
+            "answerable": false,
+            "rank": null,
+            "latency_s": 0.002
+          },
+          {
+            "id": "U09",
+            "category": "suivi_projet",
+            "question": "Pourquoi le projet de soda à la cerise a-t-il été arrêté ?",
+            "answerable": true,
+            "rank": null,
+            "latency_s": 0.001
+          },
+          {
+            "id": "U10",
+            "category": "hors_perimetre",
+            "question": "Quel est le numéro de TVA de Northstar Beverages ?",
+            "refusal_case": true,
+            "latency_s": 0.001
+          }
+        ]
+      },
+      "v2": {
+        "summary": {
+          "cases": 10,
+          "answerable_cases": 9,
+          "coverage": 1.0,
+          "hit_at_4": 1.0,
+          "mrr": 0.7592592592592592
+        },
+        "results": [
+          {
+            "id": "U01",
+            "category": "recommandation",
+            "question": "Avez-vous une fragrance aquatique pour un nettoyant multi-surfaces ?",
+            "answerable": true,
+            "rank": 2,
+            "latency_s": 0.004
+          },
+          {
+            "id": "U02",
+            "category": "recommandation",
+            "question": "Quel arôme salé conviendrait à des chips ?",
+            "answerable": true,
+            "rank": 1,
+            "latency_s": 0.004
+          },
+          {
+            "id": "U03",
+            "category": "fiche_produit",
+            "question": "Quelle est la naturalité de l'arôme Pêche Abricot ?",
+            "answerable": true,
+            "rank": 1,
+            "latency_s": 0.005
+          },
+          {
+            "id": "U04",
+            "category": "suivi_projet",
+            "question": "Où en est la boisson végétale matcha de la Laiterie des Alpes ?",
+            "answerable": true,
+            "rank": 1,
+            "latency_s": 0.005
+          },
+          {
+            "id": "U05",
+            "category": "suivi_projet",
+            "question": "Quelle note a reçue la première version du nettoyant lavande de Verde Home Care ?",
+            "answerable": true,
+            "rank": 2,
+            "latency_s": 0.005
+          },
+          {
+            "id": "U06",
+            "category": "commande",
+            "question": "La commande ORD-2026-006 est-elle déjà expédiée ?",
+            "answerable": true,
+            "rank": 2,
+            "latency_s": 0.003
+          },
+          {
+            "id": "U07",
+            "category": "faq",
+            "question": "Combien coûte un échantillon de 1 kg ?",
+            "answerable": true,
+            "rank": 1,
+            "latency_s": 0.002
+          },
+          {
+            "id": "U08",
+            "category": "fiche_produit",
+            "question": "What is the manufacturing lead time of the mint flavour FLV-210?",
+            "answerable": true,
+            "rank": 3,
+            "latency_s": 0.003
+          },
+          {
+            "id": "U09",
+            "category": "suivi_projet",
+            "question": "Pourquoi le projet de soda à la cerise a-t-il été arrêté ?",
+            "answerable": true,
+            "rank": 1,
+            "latency_s": 0.003
+          },
+          {
+            "id": "U10",
+            "category": "hors_perimetre",
+            "question": "Quel est le numéro de TVA de Northstar Beverages ?",
+            "refusal_case": true,
+            "latency_s": 0.001
+          }
+        ]
+      }
+    }
+  }
+}
