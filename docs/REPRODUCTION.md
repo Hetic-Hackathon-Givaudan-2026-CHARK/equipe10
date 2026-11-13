@@ -1,5 +1,6 @@
 # Reproduire les résultats
 
+
 Tous les chiffres du README, de [`results/SYNTHESE.md`](../results/SYNTHESE.md) et de la
 présentation se recalculent avec les commandes ci-dessous. Trois façons de faire, de la plus
 rapide à la plus complète.
