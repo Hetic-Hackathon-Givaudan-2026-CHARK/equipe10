@@ -1,5 +1,6 @@
 # Comparaison V1 / V2 avec métriques
 
+
 - **V1** : prototype démontré le mardi 10 novembre, commit
   [`61b9bf7`](https://github.com/Hetic-Hackathon-Givaudan-2026-CHARK/equipe10/tree/61b9bf7).
   29 fiches (clients, produits, matières premières, commandes, échantillons),
