@@ -1,6 +1,6 @@
 # Comparaison V1 / V2 — sans IA (TF-IDF)
 
-Générée par `python compare_v1_v2.py` le 2026-11-13 14:38. V1 = commit `61b9bf7` (démo du mardi 10 novembre), V2 = branche `main`. Méthode : [docs/COMPARAISON_V1_V2.md](../docs/COMPARAISON_V1_V2.md).
+Générée par `python compare_v1_v2.py` le 2026-11-13 13:40. V1 = commit `61b9bf7` (démo du mardi 10 novembre), V2 = branche `main`. Méthode : [docs/COMPARAISON_V1_V2.md](../docs/COMPARAISON_V1_V2.md).
 
 ## Données et ingestion
 
