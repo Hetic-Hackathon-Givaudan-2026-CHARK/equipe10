@@ -1,5 +1,6 @@
 # Synthèse des évaluations
 
+
 Générée par `python report.py` le 2026-11-12 22:58 à partir de 16 rapport(s). Protocole et seuils : [docs/EVALUATION.md](../docs/EVALUATION.md).
 
 | Configuration | Cas | Embeddings | LLM | Reclassement | Bon document dans le top 4 | MRR | Réponses exactes | Refus corrects | Latence moy. | Verdict |
