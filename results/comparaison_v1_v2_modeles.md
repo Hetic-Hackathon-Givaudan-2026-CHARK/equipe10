@@ -30,10 +30,10 @@ Un document est « bon » s'il contient toutes les informations attendues par le
 |---|---|---|---|
 | 30 cas de référence | Réponses exactes | 7,1 % | 96,4 % |
 | 30 cas de référence | Refus corrects (questions pièges) | 50,0 % | 100,0 % |
-| 30 cas de référence | Latence moyenne (CPU) | 18.24 s | 21.569 s |
+| 30 cas de référence | Latence moyenne (CPU) | 18,2 s | 21,6 s |
 | 10 cas inédits | Réponses exactes | 0,0 % | 77,8 % |
 | 10 cas inédits | Refus corrects (questions pièges) | 0,0 % | 100,0 % |
-| 10 cas inédits | Latence moyenne (CPU) | 15.68 s | 21.647 s |
+| 10 cas inédits | Latence moyenne (CPU) | 15,7 s | 21,6 s |
 
 Les colonnes V2 reprennent `results/eval_v22_qwen3_llm3b*.json` (même protocole, CPU GitHub Actions).
 

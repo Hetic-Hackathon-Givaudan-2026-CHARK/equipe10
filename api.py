@@ -341,6 +341,15 @@ def _published_summary(report: dict) -> dict:
     }
 
 
+def _round(value: float | None) -> float | None:
+    return None if value is None else round(value, 3)
+
+
+def _published_answer_accuracy() -> float | None:
+    report = _read_report(PUBLISHED_REPORTS["reference"])
+    return report["summary"]["answer_accuracy"] if report else None
+
+
 def _comparison_summary(report: dict) -> dict:
     retrieval = report["retrieval"]["reference"]
     return {
@@ -351,7 +360,10 @@ def _comparison_summary(report: dict) -> dict:
         "documents_melanges": {v: round(report["structure"][v]["mixed_share"], 3) for v in ("v1", "v2")},
         "couverture_30_cas": {v: round(retrieval[v]["summary"]["coverage"], 3) for v in ("v1", "v2")},
         "bon_document_top4_30_cas": {v: round(retrieval[v]["summary"]["hit_at_4"], 3) for v in ("v1", "v2")},
-        "reponses_exactes_v1": retrieval["v1"]["summary"].get("answer_accuracy"),
+        "reponses_exactes": {
+            "v1": _round(retrieval["v1"]["summary"].get("answer_accuracy")),
+            "v2": _round(_published_answer_accuracy()),
+        },
     }
 
 

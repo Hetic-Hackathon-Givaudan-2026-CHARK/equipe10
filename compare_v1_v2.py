@@ -347,6 +347,10 @@ def pct(value: float | None) -> str:
     return "—" if value is None else f"{value * 100:.1f} %".replace(".", ",")
 
 
+def seconds(value: float | None) -> str:
+    return "—" if value is None else f"{value:.1f} s".replace(".", ",")
+
+
 def write_report(path: Path, report: dict) -> None:
     s1, s2 = report["structure"]["v1"], report["structure"]["v2"]
     mode = "modèles réels (Ollama)" if report["models"] else "sans IA (TF-IDF)"
@@ -399,7 +403,7 @@ def write_report(path: Path, report: dict) -> None:
             lines += [
                 f"| {label} | Réponses exactes | {pct(a.get('answer_accuracy'))} | {pct(b.get('answer_accuracy'))} |",
                 f"| {label} | Refus corrects (questions pièges) | {pct(a.get('refusal_accuracy'))} | {pct(b.get('refusal_accuracy'))} |",
-                f"| {label} | Latence moyenne (CPU) | {a.get('latency_mean_s', '—')} s | {b.get('latency_mean_s', '—')} s |",
+                f"| {label} | Latence moyenne (CPU) | {seconds(a.get('latency_mean_s'))} | {seconds(b.get('latency_mean_s'))} |",
             ]
         lines += ["", "Les colonnes V2 reprennent `results/eval_v22_qwen3_llm3b*.json` (même protocole, CPU GitHub Actions).", ""]
 

@@ -111,3 +111,4 @@ def test_evaluation_pour_la_demo(client):
     comparaison = body["comparaison_v1_v2"]
     assert comparaison["documents_indexes"]["v1"] == 25
     assert comparaison["documents_types"] == {"v1": 0.0, "v2": 1.0}
+    assert comparaison["reponses_exactes"]["v2"] == 0.964

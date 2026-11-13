@@ -61,6 +61,8 @@ avant une mise en production. Chiffres de référence : [`results/SYNTHESE.md`](
   [COMPARAISON_V1_V2.md](COMPARAISON_V1_V2.md)). Les 30 cas ont été écrits pour la V2 :
   la V1 est jugée sur des besoins qu'elle ne visait pas tous (projets, FAQ). L'écart
   mesure surtout la couverture fonctionnelle gagnée, pas seulement la qualité technique.
+  Une réponse de refus formulée autrement (« je ne trouve pas d'informations ») n'est pas
+  reconnue par le protocole : la V1 perd ainsi un refus (Q29).
 
 ## 3. Limites du modèle
 

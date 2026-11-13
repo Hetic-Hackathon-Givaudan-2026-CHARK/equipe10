@@ -66,7 +66,44 @@ captures de la démo (`docs/captures-demo-v1/`).
 | 10 cas inédits | Bon document dans le top 4 | 0 % | 100 % |
 | 10 cas inédits | MRR | 0,000 | 0,759 |
 
-<!-- RESULTATS_MODELES -->
+### Recherche avec le modèle d'embeddings (`qwen3-embedding:4b`, le même pour les deux versions)
+
+| Jeu de cas | Critère | V1 | V2 (sans reclassement) | V2.2 publiée (avec reclassement) |
+|---|---|---|---|---|
+| 30 cas de référence | Bon document dans le top 4 | 3,6 % (1/28) | 89,3 % | 100 % |
+| 30 cas de référence | MRR | 0,036 | 0,774 | 0,964 |
+| 10 cas inédits | Bon document dans le top 4 | 11,1 % (1/9) | 88,9 % | 100 % |
+| 10 cas inédits | MRR | 0,037 | 0,750 | 0,944 |
+
+La colonne « V2.2 publiée » reprend les résultats officiels (`results/eval_v22_qwen3_llm3b*.md`),
+qui jugent le bon document par son identifiant ; les deux autres colonnes le jugent par son
+contenu. L'écart entre « sans reclassement » et « publiée » mesure l'apport de `rerank.py`.
+
+### Réponses (modèles réels, CPU GitHub Actions)
+
+V1 : son prompt et son LLM d'origine `qwen2.5:1.5b`. V2.2 : version publiée, `qwen2.5:3b`.
+
+| Jeu de cas | Critère | V1 | V2.2 |
+|---|---|---|---|
+| 30 cas de référence | Réponses exactes | 7,1 % (2/28) | 96,4 % (27/28) |
+| 30 cas de référence | Refus corrects (2 questions pièges) | 50 % (1/2) | 100 % (2/2) |
+| 30 cas de référence | Latence moyenne | 18,2 s | 21,6 s |
+| 10 cas inédits | Réponses exactes | 0 % (0/9) | 77,8 % (7/9) |
+| 10 cas inédits | Refus corrects (1 question piège) | 0 % (0/1) | 100 % (1/1) |
+| 10 cas inédits | Latence moyenne | 15,7 s | 21,6 s |
+
+Ce que montrent les réponses de la V1 (détail dans `results/comparaison_v1_v2_modeles.json`) :
+
+- **Elle invente** : à « Quel est le numéro de TVA de Northstar Beverages ? » (U10, absent des
+  données), la V1 répond un numéro de TVA inventé. La V2.2 refuse.
+- **Ses 2 « bonnes » réponses sont en partie des coïncidences** : pour Q16 (« combien de
+  versions pour valider le shake mangue ? »), elle répond « trois versions » en décrivant en
+  fait des commandes, car la V1 ne contient aucune version d'échantillon.
+- Pour Q29 (formule de `FRG-101`), elle répond qu'elle ne trouve pas le produit : c'est un
+  refus de fait, mais formulé d'une façon que le protocole ne reconnaît pas. Compté comme
+  échec, ce qui pénalise légèrement la V1.
+- La V1 est un peu plus rapide (LLM plus petit) ; la V2.2 compense en partie avec les
+  réponses directes sans LLM. Les deux restent au-dessus du seuil de 10 s sur processeur.
 
 ## Lecture
 
@@ -75,6 +112,8 @@ captures de la démo (`docs/captures-demo-v1/`).
   pas de versions d'échantillons, pas de FAQ, pas de prix ni de délais dans les fiches. Et
   même cette réponse n'était pas retrouvée, noyée dans des passages qui mélangeaient plusieurs
   fiches.
+- **Résultat pour l'utilisateur** : 7 % de réponses exactes et une information inventée
+  en V1, contre 96 % et aucune invention sur les questions pièges en V2.2.
 - **La V2 corrige l'ingestion** (une fiche = un document, avec type, domaine et métadonnées)
   et **élargit les données** à tout le parcours de la plateforme (catalogue, projets,
   échantillons V1/V2/V3, commandes, règles).

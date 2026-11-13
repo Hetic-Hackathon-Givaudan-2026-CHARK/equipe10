@@ -168,17 +168,18 @@ Les taux sont entre 0 et 1. `503` si les rapports d'évaluation sont absents.
     "documents_types": { "v1": 0.0, "v2": 1.0 },
     "documents_melanges": { "v1": 1.0, "v2": 0.0 },
     "couverture_30_cas": { "v1": 0.036, "v2": 1.0 },
-    "bon_document_top4_30_cas": { "v1": 0.0, "v2": 0.964 },
-    "reponses_exactes_v1": null
+    "bon_document_top4_30_cas": { "v1": 0.036, "v2": 0.893 },
+    "reponses_exactes": { "v1": 0.071, "v2": 0.964 }
   },
   "mesure": "CPU GitHub Actions (sans GPU) ; protocole : docs/EVALUATION.md"
 }
 ```
 
-(Extrait : `par_categorie` contient les 5 catégories.) `reponses_exactes_v1` est rempli quand
-la comparaison avec les vrais modèles (`compare_v1_v2.py --models`) a été lancée.
+(Extrait : `par_categorie` contient les 5 catégories.) `comparaison_v1_v2` vient du rapport
+avec les vrais modèles (`results/comparaison_v1_v2_modeles.json`) s'il existe, sinon du
+rapport sans IA ; dans ce cas `reponses_exactes.v1` vaut `null`.
 Idées d'affichage : jauge « 96 % de réponses exactes » avec le seuil de 80 %, badge
-« 100 % de refus sur les questions pièges », barre V1 → V2 du nombre de cas couverts.
+« 100 % de refus sur les questions pièges », barre V1 → V2 des réponses exactes (7 % → 96 %).
 
 ### Erreurs
 

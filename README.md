@@ -96,6 +96,9 @@ compte comme bon s'il contient la réponse attendue. Détail et méthode :
 | Documents mélangeant plusieurs fiches | 100 % | 0 % |
 | Cas dont la réponse existe dans les données | 3,6 % (1/28) | 100 % |
 | Bon document dans le top 4 (recherche sans IA, TF-IDF) | 0 % | 96,4 % |
+| Bon document dans le top 4 (`qwen3-embedding:4b`) | 3,6 % | 100 % |
+| Réponses exactes (modèles réels) | 7,1 % (2/28) | 96,4 % (27/28) |
+| Refus corrects sur les questions pièges | 1/2 (et invente un n° de TVA sur les cas inédits) | 2/2 (et 1/1) |
 
 **Limites** : données fictives écrites par l'équipe, 28 + 9 questions et 3 pièges seulement,
 exactitude mesurée par mots-clés (ex. Q25), latence au-dessus du seuil sur processeur. Ces

@@ -52,7 +52,7 @@ détaillés dans [`results/SYNTHESE.md`](../results/SYNTHESE.md).
 | L'IA trouve la bonne information | bon document dans le top 4 : **100 %** (28/28), MRR 0,964 | `results/eval_v22_qwen3_llm3b.md` |
 | Elle répond juste | **96 %** de réponses exactes (27/28) sur 30 cas de référence ; 78 % (7/9) sur 10 cas inédits | idem + `_inedits` |
 | Elle n'invente pas | **100 %** de refus corrects sur les questions pièges (formule, produit inexistant) | idem |
-| La V2 corrige la V1 | 25 passages non typés et mélangés → 123 fiches typées ; cas dont la réponse existe dans les données : 4 % → 100 % | `results/comparaison_v1_v2.md` |
+| La V2 corrige la V1 | réponses exactes **7 % → 96 %** ; la V1 inventait un numéro de TVA, la V2 refuse ; 25 passages mélangés → 123 fiches typées | `results/comparaison_v1_v2_modeles.md` |
 | Limite assumée | 22 s par réponse sur processeur → GPU nécessaire pour passer sous 10 s | `docs/LIMITES_BIAIS.md` |
 
 Ne pas annoncer d'autre chiffre de précision que ceux-ci : ce sont les seuls mesurés et
