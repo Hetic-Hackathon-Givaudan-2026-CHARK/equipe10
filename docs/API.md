@@ -36,6 +36,7 @@ const data = await res.json(); // { question, domain, answer, model, sources: [.
 | `POST` | `/search` | catalogue intelligent / recherche : documents pertinents sans réponse rédigée |
 | `GET` | `/orders/{order_id}` | suivi de commande en temps réel |
 | `GET` | `/demo/ping` | test de connectivité, aucune donnée métier |
+| `GET` | `/evaluation` | résultats mesurés du modèle et comparaison V1 / V2, pour l'écran de démo |
 
 ### `POST /ask` et `POST /search` — entrée
 
@@ -144,6 +145,41 @@ annulée, devis en attente). Statuts possibles : `Brouillon`, `Brief soumis`, `E
 `Devis envoyé`, `En attente de confirmation`, `Confirmée`, `En préparation`,
 `En production`, `Expédiée`, `Livrée`, `Annulée`.
 
+### `GET /evaluation` — sortie
+
+Résultats mesurés du modèle publié, lus dans `results/` (rien n'est recalculé à l'appel).
+Les taux sont entre 0 et 1. `503` si les rapports d'évaluation sont absents.
+
+```json
+{
+  "version": "V2.2",
+  "modele": { "embeddings": "qwen3-embedding:4b", "llm": "qwen2.5:3b", "reclassement": true },
+  "seuils": { "bon_document_top4": 0.9, "mrr": 0.75, "reponses_exactes": 0.8, "refus_corrects": 1.0, "latence_moyenne_s": 10.0 },
+  "cas_de_reference": {
+    "cas": 30, "bon_document_top4": 1.0, "mrr": 0.964, "reponses_exactes": 0.964,
+    "refus_corrects": 1.0, "latence_moyenne_s": 21.569,
+    "par_categorie": { "recommandation": { "n": 8, "hits": 8, "answers_ok": 8 } },
+    "valide": { "hit_at_k": true, "mrr": true, "answer_accuracy": true, "refusal_accuracy": true, "latency_mean_s": false },
+    "date": "2026-11-12 21:51"
+  },
+  "cas_inedits": { "cas": 10, "bon_document_top4": 1.0, "mrr": 0.944, "reponses_exactes": 0.778, "refus_corrects": 1.0 },
+  "comparaison_v1_v2": {
+    "documents_indexes": { "v1": 25, "v2": 123 },
+    "documents_types": { "v1": 0.0, "v2": 1.0 },
+    "documents_melanges": { "v1": 1.0, "v2": 0.0 },
+    "couverture_30_cas": { "v1": 0.036, "v2": 1.0 },
+    "bon_document_top4_30_cas": { "v1": 0.0, "v2": 0.964 },
+    "reponses_exactes_v1": null
+  },
+  "mesure": "CPU GitHub Actions (sans GPU) ; protocole : docs/EVALUATION.md"
+}
+```
+
+(Extrait : `par_categorie` contient les 5 catégories.) `reponses_exactes_v1` est rempli quand
+la comparaison avec les vrais modèles (`compare_v1_v2.py --models`) a été lancée.
+Idées d'affichage : jauge « 96 % de réponses exactes » avec le seuil de 80 %, badge
+« 100 % de refus sur les questions pièges », barre V1 → V2 du nombre de cas couverts.
+
 ### Erreurs
 
 | Code | Cas |
@@ -151,7 +187,7 @@ annulée, devis en attente). Statuts possibles : `Brouillon`, `Brief soumis`, `E
 | `404` | commande introuvable (`/orders`), ou aucune source trouvée (`/ask`) |
 | `422` | requête invalide (question vide, `domain` inconnu, `top_k` hors 1–20) |
 | `502` | Ollama injoignable ou en erreur pendant la génération (`/ask`) |
-| `503` | base vectorielle vide : lancer `python ingest.py` |
+| `503` | base vectorielle vide : lancer `python ingest.py` ; ou rapports absents (`/evaluation`) |
 
 ## Identifiants utiles pour une démo
 

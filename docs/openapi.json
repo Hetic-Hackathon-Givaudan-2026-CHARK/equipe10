@@ -142,6 +142,30 @@
         }
       }
     },
+    "/evaluation": {
+      "get": {
+        "tags": [
+          "Démonstration"
+        ],
+        "summary": "Evaluation",
+        "description": "Résultats mesurés du modèle publié et comparaison V1 / V2, pour l'interface de démo.\n\nLit les rapports de results/ (générés par evaluate.py et compare_v1_v2.py) :\nrien n'est recalculé à l'appel. Les taux sont entre 0 et 1.",
+        "operationId": "evaluation_evaluation_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Evaluation Evaluation Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/orders/{order_id}": {
       "get": {
         "tags": [

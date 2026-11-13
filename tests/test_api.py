@@ -100,3 +100,14 @@ def test_metadonnees_metier_dans_les_sources(client):
 
     project = client.post("/search", json={"question": "Où en est le projet PJ-003 ?"}).json()[0]["metadata"]
     assert project["project_id"] == "PJ-003" and project["stage"] == "Rectification" and project["progress_pct"] == 60
+
+
+def test_evaluation_pour_la_demo(client):
+    body = client.get("/evaluation").json()
+    assert body["modele"] == {"embeddings": "qwen3-embedding:4b", "llm": "qwen2.5:3b", "reclassement": True}
+    reference = body["cas_de_reference"]
+    assert reference["cas"] == 30 and reference["reponses_exactes"] == 0.964 and reference["refus_corrects"] == 1.0
+    assert body["cas_inedits"]["cas"] == 10
+    comparaison = body["comparaison_v1_v2"]
+    assert comparaison["documents_indexes"]["v1"] == 25
+    assert comparaison["documents_types"] == {"v1": 0.0, "v2": 1.0}

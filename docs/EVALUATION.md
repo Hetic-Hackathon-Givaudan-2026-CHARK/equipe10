@@ -5,9 +5,11 @@
 Le « modèle » est le système RAG complet : dataset + découpage + modèle d'embeddings
 (recherche) + LLM (rédaction) + prompt système.
 
-- **V1 (mardi 10 novembre, tag `v1`)** : premier prototype démontré, 29 documents,
-  `qwen3-embedding:4b` + `qwen2.5:1.5b`. Évaluée qualitativement à partir de la démo
-  (`docs/captures-demo-v1/`) : voir « Limites constatées sur la V1 » plus bas.
+- **V1 (mardi 10 novembre, commit `61b9bf7`)** : premier prototype démontré, 29 fiches
+  indexées en 25 passages, `qwen3-embedding:4b` + `qwen2.5:1.5b`. Évaluée d'abord
+  qualitativement à partir de la démo (`docs/captures-demo-v1/`, voir « Limites constatées
+  sur la V1 » plus bas), puis mesurée sur les mêmes 30 + 10 cas que la V2 :
+  [COMPARAISON_V1_V2.md](COMPARAISON_V1_V2.md).
 - **V2 (jeudi 12 novembre)** : dataset complet (123 documents), ingestion corrigée,
   filtre de domaine, suivi des commandes. Évaluée sur les 30 cas de référence ci-dessous.
 
@@ -31,7 +33,10 @@ Les captures de la démo du 10 novembre (`docs/captures-demo-v1/`) montrent que 
 - 25 passages seulement, sans projets, versions d'échantillons, retours clients ni FAQ :
   la majorité des 30 cas de référence étaient hors de portée de la V1.
 
-Ces trois points sont corrigés dans la V2.
+Ces trois points sont corrigés dans la V2. Ils sont désormais mesurés par
+`compare_v1_v2.py` : 0 % de passages typés et 100 % de passages mélangés en V1, contre
+100 % et 0 % en V2 ; la réponse à 1 seul des 28 cas répondables existe dans les données de
+la V1 ([`results/comparaison_v1_v2.md`](../results/comparaison_v1_v2.md)).
 
 ## Jeu de référence
 
@@ -155,3 +160,5 @@ réponses du modèle dans `results/eval_*.json`. Mesures sur processeur (GitHub 
 - L'exactitude est mesurée par présence de mots-clés : une réponse juste mais formulée
   autrement peut être comptée fausse. Relire le JSON pour les cas en échec.
 - 30 cas suffisent pour comparer des configurations, pas pour une garantie statistique.
+- Analyse complète des limites et des biais (données, évaluation, modèle, RGPD) :
+  [LIMITES_BIAIS.md](LIMITES_BIAIS.md). Procédure de reproduction : [REPRODUCTION.md](REPRODUCTION.md).
