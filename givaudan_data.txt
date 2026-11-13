@@ -1,5 +1,6 @@
 Plateforme B2B de création et de commande d'arômes et de fragrances — dataset synthétique (date de référence 2026-11-12)
 
+
 Chapter 1: client_CL-001
 CLIENT | Maison Éclat (ID CL-001). Segment : PME. Pays : France. Secteur : Cosmétiques. Langue préférée : fr. Niveau de compte : standard. Projets de création : PJ-004. Commandes : ORD-2026-002, ORD-2026-008.
 
