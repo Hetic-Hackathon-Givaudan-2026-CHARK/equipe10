@@ -16,7 +16,6 @@ import evaluate
 
 OUTPUT = evaluate.RESULTS_DIR / "SYNTHESE.md"
 
-
 def pct(x: float) -> str:
     return f"{x * 100:.1f} %".replace(".", ",")
 

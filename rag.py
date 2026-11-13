@@ -1,5 +1,6 @@
 """Briques communes : client Ollama, collection Chroma, embeddings."""
 
+
 from __future__ import annotations
 
 import chromadb

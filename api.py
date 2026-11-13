@@ -9,6 +9,7 @@ Swagger :
 
 from __future__ import annotations
 
+import json
 from typing import Literal
 
 import pandas as pd
@@ -307,6 +308,105 @@ def ask(request: AskRequest) -> AskResponse:
         sources=sources,
         answer_source="llm",
     )
+
+
+RESULTS_DIR = config.BASE_DIR / "results"
+
+# Rapports officiels de la version publiée (V2.2, qwen3-embedding:4b + qwen2.5:3b).
+PUBLISHED_REPORTS = {
+    "reference": "eval_v22_qwen3_llm3b.json",
+    "inedits": "eval_v22_qwen3_llm3b_inedits.json",
+}
+
+
+def _read_report(name: str) -> dict | None:
+    path = RESULTS_DIR / name
+    if not path.exists():
+        return None
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _published_summary(report: dict) -> dict:
+    summary = report["summary"]
+    return {
+        "cas": summary["cases"],
+        "bon_document_top4": round(summary["hit_at_k"], 3),
+        "mrr": round(summary["mrr"], 3),
+        "reponses_exactes": round(summary["answer_accuracy"], 3),
+        "refus_corrects": round(summary["refusal_accuracy"], 3),
+        "latence_moyenne_s": summary["latency_mean_s"],
+        "par_categorie": summary["by_category"],
+        "valide": summary["validation"],
+        "date": report["meta"]["date"],
+    }
+
+
+def _round(value: float | None) -> float | None:
+    return None if value is None else round(value, 3)
+
+
+def _published_answer_accuracy() -> float | None:
+    report = _read_report(PUBLISHED_REPORTS["reference"])
+    return report["summary"]["answer_accuracy"] if report else None
+
+
+def _comparison_summary(report: dict) -> dict:
+    retrieval = report["retrieval"]["reference"]
+    return {
+        "methode": report["retriever"],
+        "date": report["date"],
+        "documents_indexes": {v: report["structure"][v]["documents"] for v in ("v1", "v2")},
+        "documents_types": {v: round(report["structure"][v]["typed_share"], 3) for v in ("v1", "v2")},
+        "documents_melanges": {v: round(report["structure"][v]["mixed_share"], 3) for v in ("v1", "v2")},
+        "couverture_30_cas": {v: round(retrieval[v]["summary"]["coverage"], 3) for v in ("v1", "v2")},
+        "bon_document_top4_30_cas": {v: round(retrieval[v]["summary"]["hit_at_4"], 3) for v in ("v1", "v2")},
+        "reponses_exactes": {
+            "v1": _round(retrieval["v1"]["summary"].get("answer_accuracy")),
+            "v2": _round(_published_answer_accuracy()),
+        },
+    }
+
+
+@app.get("/evaluation", tags=["Démonstration"])
+def evaluation() -> dict:
+    """Résultats mesurés du modèle publié et comparaison V1 / V2, pour l'interface de démo.
+
+    Lit les rapports de results/ (générés par evaluate.py et compare_v1_v2.py) :
+    rien n'est recalculé à l'appel. Les taux sont entre 0 et 1.
+    """
+    published = {key: _read_report(name) for key, name in PUBLISHED_REPORTS.items()}
+    if published["reference"] is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Rapports d'évaluation introuvables dans results/ (lancer evaluate.py).",
+        )
+
+    comparison = (
+        _read_report("comparaison_v1_v2_modeles.json")
+        or _read_report("comparaison_v1_v2.json")
+    )
+
+    return {
+        "version": "V2.2",
+        "modele": {
+            "embeddings": published["reference"]["meta"]["embed_model"],
+            "llm": published["reference"]["meta"]["llm_model"],
+            "reclassement": bool(published["reference"]["meta"].get("rerank")),
+        },
+        "seuils": {
+            "bon_document_top4": 0.90,
+            "mrr": 0.75,
+            "reponses_exactes": 0.80,
+            "refus_corrects": 1.0,
+            "latence_moyenne_s": 10.0,
+        },
+        "cas_de_reference": _published_summary(published["reference"]),
+        "cas_inedits": (
+            _published_summary(published["inedits"]) if published["inedits"] else None
+        ),
+        "comparaison_v1_v2": _comparison_summary(comparison) if comparison else None,
+        "mesure": "CPU GitHub Actions (sans GPU) ; protocole : docs/EVALUATION.md",
+    }
 
 
 @app.get("/orders/{order_id}", tags=["Suivi des commandes"])

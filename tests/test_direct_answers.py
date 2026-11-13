@@ -1,5 +1,6 @@
 """Réponses directes depuis les données structurées (V2.2)."""
 
+
 import direct_answers as d
 
 
