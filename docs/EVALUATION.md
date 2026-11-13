@@ -1,5 +1,6 @@
 # Protocole de validation du modèle RAG
 
+
 ## Ce qu'on évalue
 
 Le « modèle » est le système RAG complet : dataset + découpage + modèle d'embeddings
