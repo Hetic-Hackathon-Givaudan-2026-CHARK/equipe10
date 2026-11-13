@@ -2,7 +2,6 @@
 
 import ingest
 
-
 def test_decoupage_une_section_par_fiche():
     text = ingest.config.DATASET_PATH.read_text(encoding="utf-8")
     _, sections = ingest.split_into_sections(text)
