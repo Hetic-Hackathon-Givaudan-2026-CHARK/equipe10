@@ -1,5 +1,6 @@
 # Contrat d'API — pour l'intégration des interfaces
 
+
 API FastAPI (`api.py`). Documentation interactive : `/docs` (Swagger) ; schéma
 machine : [`docs/openapi.json`](openapi.json) (régénéré par `python export_openapi.py`).
 
