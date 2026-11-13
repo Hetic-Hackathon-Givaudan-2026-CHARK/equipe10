@@ -23,7 +23,6 @@ Deux modes :
 
 Résultats : results/comparaison_v1_v2[_modeles].md et .json
 """
-
 from __future__ import annotations
 
 import argparse
