@@ -1,5 +1,6 @@
 """Comparaison V1 / V2 (compare_v1_v2.py), mode sans IA."""
 
+
 import compare_v1_v2 as compare
 
 
